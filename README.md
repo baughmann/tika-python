@@ -2,6 +2,7 @@ tika-python
 ===========
 
 <!-- Pytest Coverage Comment:Begin -->
+
 <!-- Pytest Coverage Comment:End -->
 
 A Python port of the [Apache Tika](http://tika.apache.org/)

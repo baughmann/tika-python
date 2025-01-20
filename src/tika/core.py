@@ -51,6 +51,7 @@ or:
 
 """
 
+import asyncio
 import codecs
 import getopt
 import hashlib
@@ -71,7 +72,7 @@ from pathlib import Path
 from subprocess import STDOUT, Popen
 from typing import Any, BinaryIO, Literal, NoReturn, TypedDict
 
-import requests
+import httpx
 
 USAGE = """
 tika.py [-v] [-e] [-o <outputDir>] [--server <Tikaserver_endpoint>] [--install <UrlToTikaServerJar>] [--port <portNumber>] <command> <option> <urlOrPathToFile>
@@ -244,7 +245,7 @@ def die(*s: Any) -> NoReturn:  # noqa: ANN401
     sys.exit()
 
 
-def run_command(
+async def run_command(
     cmd: str,
     option: str,
     url_or_paths: Iterable[str | Path | BinaryIO],
@@ -283,7 +284,7 @@ def run_command(
         raise TikaError(msg)
     server_endpoint = "http://" + server_host + ":" + port
     if cmd == "parse":
-        return parse_and_save(
+        return await parse_and_save(
             option=option,
             url_or_paths=url_or_paths,
             out_dir=out_dir,
@@ -292,7 +293,7 @@ def run_command(
             tika_server_jar=tika_server_jar,
         )
     if cmd == "detect":
-        return detect_type(
+        return await detect_type(
             option=option,
             url_or_paths=url_or_paths,
             server_endpoint=server_endpoint,
@@ -300,7 +301,7 @@ def run_command(
             tika_server_jar=tika_server_jar,
         )
     if cmd == "language":
-        return detect_lang(
+        return await detect_lang(
             option=option,
             url_or_paths=url_or_paths,
             server_endpoint=server_endpoint,
@@ -308,7 +309,7 @@ def run_command(
             tika_server_jar=tika_server_jar,
         )
     if cmd == "config":
-        status, resp = get_config(
+        status, resp = await get_config(
             option=option,
             server_endpoint=server_endpoint,
             verbose=verbose,
@@ -353,7 +354,7 @@ def get_paths(url_or_paths: Iterable[str | Path | BinaryIO]) -> list[Path]:
     return paths
 
 
-def parse_and_save(
+async def parse_and_save(
     option: str,
     url_or_paths: Iterable[str | Path | BinaryIO],
     *,
@@ -399,7 +400,7 @@ def parse_and_save(
         else:
             meta_path = Path(os.path.join(out_dir, os.path.split(path)[1] + meta_extension))
             logger.info(f"Writing {meta_path}")
-            _, content = parse_1(
+            _, content = await parse_1(
                 option=option,
                 url_or_path=path,
                 server_endpoint=server_endpoint,
@@ -419,7 +420,7 @@ def parse_and_save(
     return meta_paths
 
 
-def parse(
+async def parse(
     option: str,
     url_or_paths: Iterable[str | Path | BinaryIO],
     *,
@@ -448,22 +449,24 @@ def parse(
         (HTTP status code, parsed content) for each processed file.
     """
     services = services or {"meta": "/meta", "text": "/tika", "all": "/rmeta"}
-    return [
-        parse_1(
-            option=option,
-            url_or_path=path,
-            server_endpoint=server_endpoint,
-            verbose=verbose,
-            tika_server_jar=tika_server_jar,
-            response_mime_type=response_mime_type,
-            services=services,
-            raw_response=raw_response,
-        )
-        for path in url_or_paths
-    ]
+    return await asyncio.gather(
+        *[
+            parse_1(
+                option=option,
+                url_or_path=path,
+                server_endpoint=server_endpoint,
+                verbose=verbose,
+                tika_server_jar=tika_server_jar,
+                response_mime_type=response_mime_type,
+                services=services,
+                raw_response=raw_response,
+            )
+            for path in url_or_paths
+        ]
+    )
 
 
-def parse_1(
+async def parse_1(
     option: str,
     url_or_path: str | Path | BinaryIO,
     *,
@@ -520,7 +523,7 @@ def parse_1(
         }
     )
     with get_file_handle(path) as f:
-        status, response = call_server(
+        status, response = await call_server(
             verb="put",
             server_endpoint=server_endpoint,
             service=service,
@@ -538,7 +541,7 @@ def parse_1(
     return (status, response)
 
 
-def detect_lang(
+async def detect_lang(
     option: str,
     url_or_paths: Iterable[str | Path | BinaryIO],
     server_endpoint: str = SERVER_ENDPOINT,
@@ -568,13 +571,15 @@ def detect_lang(
     """
     services = services or {"file": "/language/stream"}
     paths = get_paths(url_or_paths)
-    return [
-        detect_lang_1(option, path, server_endpoint, verbose, tika_server_jar, response_mime_type, services)
-        for path in paths
-    ]
+    return await asyncio.gather(
+        *[
+            detect_lang_1(option, path, server_endpoint, verbose, tika_server_jar, response_mime_type, services)
+            for path in paths
+        ]
+    )
 
 
-def detect_lang_1(
+async def detect_lang_1(
     option: str,
     url_or_path: str | Path | BinaryIO,
     server_endpoint: str = SERVER_ENDPOINT,
@@ -612,7 +617,7 @@ def detect_lang_1(
         logger.exception(msg)
         raise TikaError(msg)
     service = services[option]
-    status, response = call_server(
+    status, response = await call_server(
         verb="put",
         server_endpoint=server_endpoint,
         service=service,
@@ -625,7 +630,7 @@ def detect_lang_1(
     return (status, response)
 
 
-def detect_type(
+async def detect_type(
     option: str,
     url_or_paths: Iterable[str | Path | BinaryIO],
     server_endpoint: str = SERVER_ENDPOINT,
@@ -652,21 +657,23 @@ def detect_type(
     """
     services = services or {"type": "/detect/stream"}
     paths = get_paths(url_or_paths)
-    return [
-        detect_type_1(
-            option=option,
-            url_or_path=path,
-            server_endpoint=server_endpoint,
-            verbose=verbose,
-            tika_server_jar=tika_server_jar,
-            response_mime_type=response_mime_type,
-            services=services,
-        )
-        for path in paths
-    ]
+    return await asyncio.gather(
+        *[
+            detect_type_1(
+                option=option,
+                url_or_path=path,
+                server_endpoint=server_endpoint,
+                verbose=verbose,
+                tika_server_jar=tika_server_jar,
+                response_mime_type=response_mime_type,
+                services=services,
+            )
+            for path in paths
+        ]
+    )
 
 
-def detect_type_1(
+async def detect_type_1(
     option: str,
     url_or_path: str | Path | BinaryIO,
     server_endpoint: str = SERVER_ENDPOINT,
@@ -707,7 +714,7 @@ def detect_type_1(
         raise TikaError(msg)
     service = services[option]
 
-    status, response = call_server(
+    status, response = await call_server(
         verb="put",
         server_endpoint=server_endpoint,
         service=service,
@@ -726,7 +733,7 @@ def detect_type_1(
     return (status, response)
 
 
-def get_config(
+async def get_config(
     option: str,
     server_endpoint: str = SERVER_ENDPOINT,
     verbose: int = VERBOSE,
@@ -778,7 +785,7 @@ def get_config(
     if option not in services:
         die("config option must be one of mime-types, detectors, or parsers")
     service = services[option]
-    status, response = call_server(
+    status, response = await call_server(
         verb="get",
         server_endpoint=server_endpoint,
         service=service,
@@ -791,7 +798,32 @@ def get_config(
     return (status, response)
 
 
-def call_server(  # noqa: C901
+_http_client: httpx.AsyncClient | None = None
+
+
+def get_async_client() -> httpx.AsyncClient:
+    """
+    Returns a memoized httpx.AsyncClient instance.
+    Creates a new one if it doesn't exist.
+    """
+    global _http_client
+    if _http_client is None:
+        _http_client = httpx.AsyncClient(verify=False, timeout=60.0)  # noqa: S501
+    return _http_client
+
+
+async def close_async_client() -> None:
+    """
+    Closes the memoized client if it exists.
+    Should be called when shutting down the application.
+    """
+    global _http_client
+    if _http_client is not None:
+        await _http_client.aclose()
+        _http_client = None
+
+
+async def call_server(  # noqa: C901
     verb: str,
     server_endpoint: str,
     service: str,
@@ -800,50 +832,21 @@ def call_server(  # noqa: C901
     headers: dict[str, Any],
     verbose: int = VERBOSE,
     tika_server_jar: Path = TIKA_SERVER_JAR,
-    http_verbs: dict[str, Any] | None = None,
     classpath: str | None = None,
     raw_response: bool = False,
     config_path: str | None = None,
     request_options: dict[str, Any] | None = None,
 ) -> tuple[int, str | bytes | BinaryIO]:
-    """Make an HTTP request to the Tika Server.
-
-    Args:
-        verb: HTTP method ('get', 'put', or 'post').
-        server_endpoint: Base URL of Tika server.
-        service: Service path to append to server_endpoint.
-        data: Request payload. Can be None for GET requests.
-        headers: Dictionary of HTTP headers to include.
-        verbose: Logging verbosity level. Defaults to VERBOSE.
-        tika_server_jar: Path to Tika server JAR. Defaults to TIKA_SERVER_JAR.
-        http_verbs: Dict mapping verb strings to request functions.
-                   Defaults to using requests.get/put/post.
-        classpath: Additional classpath entries. Defaults to None.
-        raw_response: If True, return raw response content. Defaults to False.
-        config_path: Path to Tika configuration file. Defaults to None.
-        request_options: Additional options for requests. Defaults to None.
-
-    Returns:
-        tuple[int, str | bytes | BinaryIO]: Tuple containing:
-            - HTTP status code
-            - Response content (decoded as UTF-8 unless raw_response is True)
-
-    Raises:
-        TikaError: If server endpoint URL is invalid or HTTP verb is unsupported.
-        RuntimeError: If server cannot be contacted.
-
-    Note:
-        - Automatically starts Tika server if needed
-        - Handles Windows-specific file reading behavior
-        - Default timeout is 60 seconds
-    """
-    http_verbs = http_verbs or {"get": requests.get, "put": requests.put, "post": requests.post}
+    """Make an HTTP request to the Tika Server."""
+    client = get_async_client()
     request_options = request_options or {}
+
+    # Server endpoint validation and setup
     parsed_url = urlparse(server_endpoint)
     server_host = parsed_url.hostname
     scheme: Literal["http", "https"] = parsed_url.scheme  # type: ignore
-
     port = parsed_url.port
+
     if not port or not isinstance(port, int):
         msg = f"Port not specified or is invalid in server endpoint URL '{server_endpoint}'."
         raise TikaError(msg)
@@ -856,10 +859,10 @@ def call_server(  # noqa: C901
         msg = f"Scheme not specified or is invalid in server endpoint URL '{server_endpoint}'."
         raise TikaError(msg)
 
+    # Server check and setup
     if classpath is None:
         classpath = TIKA_SERVER_CLASSPATH
 
-    global TIKA_CLIENT_ONLY
     if not TIKA_CLIENT_ONLY:
         server_endpoint = check_tika_server(
             scheme=scheme,
@@ -871,35 +874,43 @@ def call_server(  # noqa: C901
         )
 
     service_url = server_endpoint + service
-    if verb not in http_verbs:
-        msg = f"Tika Server call must be one of {http_verbs.keys()}"
-        logger.exception(msg)
-        raise TikaError(msg)
-    verb_fn = http_verbs[verb]
 
-    if IS_WINDOWS and hasattr(data, "read"):
-        data = data.read()  # type: ignore
+    # Handle data preparation
+    prepared_data: bytes | None = None
+    if data is not None:
+        if isinstance(data, str | bytes):
+            prepared_data = data.encode("utf-8") if isinstance(data, str) else data
+        elif hasattr(data, "read"):
+            # Read file-like objects completely into memory
+            prepared_data = data.read() if IS_WINDOWS else data.read()  # type: ignore
+            if hasattr(data, "close"):
+                data.close()  # type: ignore
 
-    encoded_data = data
-    if isinstance(data, str):
-        encoded_data = data.encode("utf-8")
+    # Make the async request
+    try:
+        if verb.lower() == "get":
+            resp = await client.get(service_url, headers=headers, **request_options)
+        elif verb.lower() == "put":
+            resp = await client.put(service_url, content=prepared_data, headers=headers, **request_options)
+        elif verb.lower() == "post":
+            resp = await client.post(service_url, content=prepared_data, headers=headers, **request_options)
+        else:
+            msg = f"Unsupported HTTP verb: {verb}"
+            raise TikaError(msg)
 
-    request_options_default = {"timeout": 60, "headers": headers, "verify": False}
-    effective_request_options = request_options_default.copy()
-    effective_request_options.update(request_options)
+        if verbose:
+            logger.info(f"Request headers: {headers}")
+            logger.info(f"Response headers: {resp.headers}")
 
-    resp: requests.Response = verb_fn(service_url, encoded_data, **effective_request_options)
+        if resp.status_code != 200:
+            logger.warning(f"Tika server returned status: {resp.status_code}")
 
-    if verbose:
-        logger.info(sys.stderr, "Request headers: ", headers)
-        logger.info(sys.stderr, "Response headers: ", resp.headers)
-    if resp.status_code != 200:
-        logger.warning("Tika server returned status: %d", resp.status_code)
+        return (resp.status_code, resp.content if raw_response else resp.text)
 
-    resp.encoding = "utf-8"
-    if raw_response:
-        return (resp.status_code, resp.content)
-    return (resp.status_code, resp.text)
+    except httpx.RequestError as e:
+        msg = f"Error making request to Tika server: {str(e)}"
+        logger.error(msg)
+        raise TikaError(msg) from e
 
 
 def check_tika_server(

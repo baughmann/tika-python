@@ -54,6 +54,7 @@ dev = [
     "sphinx-tabs>=3.4.7",
     "sphinx-autodoc-defaultargs>=0.1.2",
     "sphinx-git>=11.0.0",
+    "pytest-asyncio>=0.25.2",
 ]
 
 [tool.isort]

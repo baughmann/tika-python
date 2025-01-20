@@ -42,19 +42,19 @@ def test_url(request: pytest.FixtureRequest) -> str:
     return request.param
 
 
-def test_parse_response_exists(test_url: str) -> None:
+async def test_parse_response_exists(test_url: str) -> None:
     """Test that parsing returns a response."""
-    result = tika.parser.from_file(test_url)
+    result = await tika.parser.from_file(test_url)
     assert result is not None
 
 
-def test_parse_metadata_exists(test_url: str) -> None:
+async def test_parse_metadata_exists(test_url: str) -> None:
     """Test that parsing returns metadata."""
-    result = tika.parser.from_file(test_url)
+    result = await tika.parser.from_file(test_url)
     assert result["metadata"] is not None
 
 
-def test_parse_content_exists(test_url: str) -> None:
+async def test_parse_content_exists(test_url: str) -> None:
     """Test that parsing returns content."""
-    result = tika.parser.from_file(test_url)
+    result = await tika.parser.from_file(test_url)
     assert result["content"] is not None

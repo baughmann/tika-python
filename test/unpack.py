@@ -39,31 +39,31 @@ def ascii_file() -> Generator[Path, Any, None]:
     file_path.unlink()  # Cleanup after test
 
 
-def test_utf8(utf8_file: Path) -> None:
+async def test_utf8(utf8_file: Path) -> None:
     """Test unpacking a UTF-8 encoded file."""
-    parsed = tika.unpack.from_file(utf8_file)
+    parsed = await tika.unpack.from_file(utf8_file)
     assert parsed["content"] is not None
     assert isinstance(parsed["content"], str)
     assert parsed["content"].strip() == TEST_TEXT_UTF8
 
 
-def test_ascii(ascii_file: Path) -> None:
+async def test_ascii(ascii_file: Path) -> None:
     """Test unpacking an ASCII encoded file."""
-    parsed = tika.unpack.from_file(ascii_file)
+    parsed = await tika.unpack.from_file(ascii_file)
     assert parsed["content"] is not None
     assert isinstance(parsed["content"], str)
     assert parsed["content"].strip() == TEST_TEXT_ASCII
 
 
-def test_from_buffer() -> None:
+async def test_from_buffer() -> None:
     """Test unpacking content from a buffer."""
-    parsed = tika.unpack.from_buffer("what?")
+    parsed = await tika.unpack.from_buffer("what?")
     assert parsed["metadata"] is not None
     assert parsed["metadata"]["Content-Length"] == "5"
 
 
-def test_from_buffer_with_headers() -> None:
+async def test_from_buffer_with_headers() -> None:
     """Test unpacking content from a buffer with custom headers."""
-    parsed = tika.unpack.from_buffer("what?", headers={"Param": "whatever"})
+    parsed = await tika.unpack.from_buffer("what?", headers={"Param": "whatever"})
     assert parsed["metadata"] is not None
     assert parsed["metadata"]["Content-Length"] == "5"

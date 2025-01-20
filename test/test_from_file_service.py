@@ -28,12 +28,12 @@ EXPECTED_CONTENT_TYPE = "application/pdf"
 
 
 @pytest.fixture
-def pdf_parse_result() -> TikaResponse:
+async def pdf_parse_result() -> TikaResponse:
     """Fixture to get parse results for the test PDF."""
-    return tika.parser.from_file(TEST_PDF_URL)
+    return await tika.parser.from_file(TEST_PDF_URL)
 
 
-def test_default_service(pdf_parse_result: TikaResponse) -> None:
+async def test_default_service(pdf_parse_result: TikaResponse) -> None:
     """Test parsing file using default service."""
     assert pdf_parse_result["metadata"]
     assert pdf_parse_result["metadata"]["Content-Type"] == EXPECTED_CONTENT_TYPE
@@ -42,10 +42,10 @@ def test_default_service(pdf_parse_result: TikaResponse) -> None:
     assert EXPECTED_CONTENT_SNIPPET in pdf_parse_result["content"]
 
 
-def test_remote_endpoint() -> None:
+async def test_remote_endpoint() -> None:
     """Test parsing with a remote Tika endpoint."""
     with patch("tika.parser.parse_1") as tika_call_mock, patch("tika.parser._parse"):
-        tika.parser.from_file("filename", server_endpoint="http://tika:9998/tika")
+        await tika.parser.from_file("filename", server_endpoint="http://tika:9998/tika")
 
         tika_call_mock.assert_called_once_with(
             option="all",
@@ -57,9 +57,9 @@ def test_remote_endpoint() -> None:
         )
 
 
-def test_default_service_explicit(pdf_parse_result: TikaResponse) -> None:
+async def test_default_service_explicit(pdf_parse_result: TikaResponse) -> None:
     """Test parsing file using default service with explicit 'all' parameter."""
-    result = tika.parser.from_file(TEST_PDF_URL, service="all")
+    result = await tika.parser.from_file(TEST_PDF_URL, service="all")
     assert result["metadata"]
     assert result["metadata"]["Content-Type"] == EXPECTED_CONTENT_TYPE
     assert result["content"]
@@ -67,26 +67,26 @@ def test_default_service_explicit(pdf_parse_result: TikaResponse) -> None:
     assert EXPECTED_CONTENT_SNIPPET in result["content"]
 
 
-def test_text_service() -> None:
+async def test_text_service() -> None:
     """Test parsing file using the content-only service."""
-    result = tika.parser.from_file(TEST_PDF_URL, service="text")
+    result = await tika.parser.from_file(TEST_PDF_URL, service="text")
     assert result["metadata"] is None
     assert result["content"]
     assert isinstance(result["content"], str)
     assert EXPECTED_CONTENT_SNIPPET in result["content"]
 
 
-def test_meta_service() -> None:
+async def test_meta_service() -> None:
     """Test parsing file using the metadata-only service."""
-    result = tika.parser.from_file(TEST_PDF_URL, service="meta")
+    result = await tika.parser.from_file(TEST_PDF_URL, service="meta")
     assert result["content"] is None
     assert result["metadata"]
     assert result["metadata"]["Content-Type"] == EXPECTED_CONTENT_TYPE
 
 
-def test_invalid_service() -> None:
+async def test_invalid_service() -> None:
     """Test parsing file using an invalid service falls back to default parsing."""
-    result = tika.parser.from_file(TEST_PDF_URL, service="bad")
+    result = await tika.parser.from_file(TEST_PDF_URL, service="bad")
     assert result["metadata"]
     assert result["metadata"]["Content-Type"] == EXPECTED_CONTENT_TYPE
     assert result["content"]

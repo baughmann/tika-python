@@ -27,27 +27,29 @@ TEST_FILES_DIR = Path(__file__).parent / "files"
 TEST_PDF_PATH = TEST_FILES_DIR / "rwservlet.pdf"
 
 
-def test_remote_pdf() -> None:
+async def test_remote_pdf() -> None:
     """Test parsing a remote PDF file."""
-    result = tika.parser.from_file("http://appsrv.achd.net/reports/rwservlet?food_rep_insp&P_ENCOUNTER=201504160015")
+    result = await tika.parser.from_file(
+        "http://appsrv.achd.net/reports/rwservlet?food_rep_insp&P_ENCOUNTER=201504160015"
+    )
     assert result is not None
 
 
-def test_remote_html() -> None:
+async def test_remote_html() -> None:
     """Test parsing a remote HTML file."""
-    result = tika.parser.from_file("http://neverssl.com/index.html")
+    result = await tika.parser.from_file("http://neverssl.com/index.html")
     assert result is not None
 
 
-def test_remote_mp3() -> None:
+async def test_remote_mp3() -> None:
     """Test parsing a remote MP3 file."""
-    result = tika.parser.from_file("https://archive.org/download/Ainst-Spaceshipdemo.mp3/Ainst-Spaceshipdemo.mp3")
+    result = await tika.parser.from_file("https://archive.org/download/Ainst-Spaceshipdemo.mp3/Ainst-Spaceshipdemo.mp3")
     assert result is not None
 
 
-def test_remote_jpg() -> None:
+async def test_remote_jpg() -> None:
     """Test parsing a remote JPG file."""
-    result = tika.parser.from_file("https://placehold.co/600x400.jpg")
+    result = await tika.parser.from_file("https://placehold.co/600x400.jpg")
     assert result is not None
 
 
@@ -58,26 +60,26 @@ def pdf_file() -> Generator[BinaryIO, None, None]:
         yield file_obj
 
 
-def test_local_binary(pdf_file: BinaryIO) -> None:
+async def test_local_binary(pdf_file: BinaryIO) -> None:
     """Test parsing a local binary file."""
-    result = tika.parser.from_file(pdf_file)
+    result = await tika.parser.from_file(pdf_file)
     assert result is not None
 
 
-def test_local_buffer() -> None:
+async def test_local_buffer() -> None:
     """Test parsing text from a buffer."""
-    result = tika.parser.from_buffer("Good evening, Dave")
+    result = await tika.parser.from_buffer("Good evening, Dave")
     assert result["status"] == HTTPStatus.OK
 
 
-def test_local_path() -> None:
+async def test_local_path() -> None:
     """Test parsing a local file path."""
-    result = tika.parser.from_file(TEST_PDF_PATH)
+    result = await tika.parser.from_file(TEST_PDF_PATH)
     assert result is not None
 
 
-def test_kill_server(pdf_file: BinaryIO) -> None:
+async def test_kill_server(pdf_file: BinaryIO) -> None:
     """Test parsing a file and then killing the server."""
-    tika.parser.from_file(pdf_file)
+    await tika.parser.from_file(pdf_file)
     result = tika.kill_server()
     assert result is None

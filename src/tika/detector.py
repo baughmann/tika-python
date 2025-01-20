@@ -22,7 +22,7 @@ from typing import Any, BinaryIO
 from tika.core import SERVER_ENDPOINT, TikaError, call_server, detect_type_1
 
 
-def from_file(
+async def from_file(
     file_obj: str | Path | BinaryIO,
     *,
     config_path: str | None = None,
@@ -58,7 +58,7 @@ def from_file(
         >>> mime_type = from_file("image.jpg")
         >>> print(mime_type)  # Prints 'image/jpeg'
     """
-    status, response = detect_type_1(
+    status, response = await detect_type_1(
         option="type",
         url_or_path=file_obj,
         config_path=config_path,
@@ -70,7 +70,7 @@ def from_file(
     return response
 
 
-def from_buffer(
+async def from_buffer(
     buf: str | bytes | BinaryIO,
     *,
     config_path: str | None = None,
@@ -109,7 +109,7 @@ def from_buffer(
         >>> mime_type = from_buffer(text_content)
         >>> print(mime_type)  # Prints 'text/plain'
     """
-    status, response = call_server(
+    status, response = await call_server(
         verb="put",
         server_endpoint=SERVER_ENDPOINT,
         service="/detect/stream",

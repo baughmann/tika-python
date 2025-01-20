@@ -22,7 +22,7 @@ from typing import Any, BinaryIO
 from tika.core import SERVER_ENDPOINT, TikaError, call_server, detect_lang_1
 
 
-def from_file(
+async def from_file(
     file_obj: str | Path | BinaryIO,
     request_options: dict[str, Any] | None = None,
 ) -> str | bytes | BinaryIO:
@@ -53,14 +53,14 @@ def from_file(
         >>> language = from_file(Path("document.txt"))
         >>> print(language)  # Prints 'en' for English text
     """
-    status, response = detect_lang_1(option="file", url_or_path=file_obj, request_options=request_options)
+    status, response = await detect_lang_1(option="file", url_or_path=file_obj, request_options=request_options)
     if status != HTTPStatus.OK:
         msg = f"Unexpected response from Tika server ({status}): {response}"
         raise TikaError(msg)
     return response
 
 
-def from_buffer(
+async def from_buffer(
     buf: str | bytes | BinaryIO,
     request_options: dict[str, Any] | None = None,
 ) -> str | bytes | BinaryIO:
@@ -91,7 +91,7 @@ def from_buffer(
         >>> language = from_buffer(text)
         >>> print(language)  # Prints 'fr' for French text
     """
-    status, response = call_server(
+    status, response = await call_server(
         verb="put",
         server_endpoint=SERVER_ENDPOINT,
         service="/language/string",

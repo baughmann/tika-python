@@ -28,7 +28,7 @@ from typing import Any, BinaryIO
 from tika.core import SERVER_ENDPOINT, TikaError, TikaResponse, call_server, parse_1
 
 
-def from_file(
+async def from_file(
     file_obj: Path,
     *,
     server_endpoint: str = SERVER_ENDPOINT,
@@ -62,7 +62,7 @@ def from_file(
         >>> print(response.content)  # Print extracted text
         >>> print(response.metadata)  # Print document metadata
     """
-    tar_output = parse_1(
+    tar_output = await parse_1(
         option="unpack",
         url_or_path=file_obj,
         server_endpoint=server_endpoint,
@@ -74,7 +74,7 @@ def from_file(
     return _parse(tar_output=tar_output)
 
 
-def from_buffer(
+async def from_buffer(
     buf: str | bytes | BinaryIO,
     *,
     server_endpoint: str = SERVER_ENDPOINT,
@@ -117,7 +117,7 @@ def from_buffer(
     headers = headers or {}
     headers.update({"Accept": "application/x-tar"})
 
-    status, response = call_server(
+    status, response = await call_server(
         verb="put",
         server_endpoint=server_endpoint,
         service="/unpack/all",

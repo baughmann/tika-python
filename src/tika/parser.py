@@ -23,7 +23,7 @@ import orjson
 from tika.core import SERVER_ENDPOINT, TikaError, TikaResponse, call_server, parse_1
 
 
-def from_file(
+async def from_file(
     obj: str | Path | BinaryIO,
     *,
     server_endpoint: str = SERVER_ENDPOINT,
@@ -72,7 +72,7 @@ def from_file(
         >>> print(response.metadata.get("Content-Type"))  # Get document type
     """
     if not xml_content:
-        output = parse_1(
+        output = await parse_1(
             option=service,
             url_or_path=obj,
             server_endpoint=server_endpoint,
@@ -81,7 +81,7 @@ def from_file(
             request_options=request_options,
         )
     else:
-        output = parse_1(
+        output = await parse_1(
             option=service,
             url_or_path=obj,
             server_endpoint=server_endpoint,
@@ -93,7 +93,7 @@ def from_file(
     return _parse(output=output, service=service)
 
 
-def from_buffer(
+async def from_buffer(
     buf: str | bytes | BinaryIO,
     *,
     server_endpoint: str = SERVER_ENDPOINT,
@@ -141,7 +141,7 @@ def from_buffer(
     headers.update({"Accept": "application/json"})
 
     if not xml_content:
-        status, response = call_server(
+        status, response = await call_server(
             verb="put",
             server_endpoint=server_endpoint,
             service="/rmeta/text",
@@ -152,7 +152,7 @@ def from_buffer(
             request_options=request_options,
         )
     else:
-        status, response = call_server(
+        status, response = await call_server(
             verb="put",
             server_endpoint=server_endpoint,
             service="/rmeta/xml",

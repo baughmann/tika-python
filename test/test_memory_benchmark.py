@@ -31,10 +31,10 @@ GZIP_HEADERS = {"Accept-Encoding": "gzip, deflate"}
 
 @pytest.mark.benchmark
 @profile
-def test_parser_binary() -> None:
+async def test_parser_binary() -> None:
     """Profile memory usage when parsing binary file directly."""
     with open(TEST_PDF_PATH, "rb") as file_obj:
-        response = tika.parser.from_file(file_obj, headers=GZIP_HEADERS)
+        response = await tika.parser.from_file(file_obj, headers=GZIP_HEADERS)
         assert response is not None
         assert response["status"] == 200
         assert response["content"] is not None
@@ -42,10 +42,10 @@ def test_parser_binary() -> None:
 
 @pytest.mark.benchmark
 @profile
-def test_parser_buffer() -> None:
+async def test_parser_buffer() -> None:
     """Profile memory usage when parsing from buffer."""
     with open(TEST_PDF_PATH) as file_obj:
-        response = tika.parser.from_buffer(file_obj.read(), headers=GZIP_HEADERS)
+        response = await tika.parser.from_buffer(file_obj.read(), headers=GZIP_HEADERS)
         assert response is not None
         assert response["status"] == 200
         assert response["content"] is not None
@@ -53,10 +53,10 @@ def test_parser_buffer() -> None:
 
 @pytest.mark.benchmark
 @profile
-def test_parser_zlib() -> None:
+async def test_parser_zlib() -> None:
     """Profile memory usage when parsing with zlib compression."""
     with open(TEST_PDF_PATH, "rb") as file_obj:
-        response = tika.parser.from_buffer(zlib.compress(file_obj.read()), headers=GZIP_HEADERS)
+        response = await tika.parser.from_buffer(zlib.compress(file_obj.read()), headers=GZIP_HEADERS)
         assert response is not None
         assert response["status"] == 200
         assert response["content"] is not None
@@ -64,10 +64,10 @@ def test_parser_zlib() -> None:
 
 @pytest.mark.benchmark
 @profile
-def test_parser_gzip() -> None:
+async def test_parser_gzip() -> None:
     """Profile memory usage when parsing with gzip compression."""
     with open(TEST_PDF_PATH, "rb") as file_obj:
-        response = tika.parser.from_buffer(gzip_compress(file_obj.read()), headers=GZIP_HEADERS)
+        response = await tika.parser.from_buffer(gzip_compress(file_obj.read()), headers=GZIP_HEADERS)
         assert response is not None
         assert response["status"] == 200
         assert response["content"] is not None

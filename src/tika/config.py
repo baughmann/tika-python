@@ -20,7 +20,7 @@ from typing import BinaryIO
 from tika.core import get_config
 
 
-def get_parsers() -> str | bytes | BinaryIO:
+async def get_parsers() -> str | bytes | BinaryIO:
     """Retrieves the list of available parsers from the Tika server.
 
     Fetches detailed information about all parsers supported by the Tika server,
@@ -37,10 +37,10 @@ def get_parsers() -> str | bytes | BinaryIO:
         >>> parsers = get_parsers()
         >>> print(parsers)  # Prints JSON of available parsers and their capabilities
     """
-    return get_config("parsers")[1]
+    return (await get_config("parsers"))[1]
 
 
-def get_mime_types() -> str | bytes | BinaryIO:
+async def get_mime_types() -> str | bytes | BinaryIO:
     """Retrieves the list of supported MIME types from the Tika server.
 
     Fetches the complete list of MIME types that the Tika server can handle,
@@ -57,10 +57,10 @@ def get_mime_types() -> str | bytes | BinaryIO:
         >>> mime_types = get_mime_types()
         >>> print(mime_types)  # Prints JSON of supported MIME types
     """
-    return get_config("mime-types")[1]
+    return (await get_config("mime-types"))[1]
 
 
-def get_detectors() -> str | bytes | BinaryIO:
+async def get_detectors() -> str | bytes | BinaryIO:
     """Retrieves the list of available content detectors from the Tika server.
 
     Fetches information about all content type detectors supported by the Tika server,
@@ -77,4 +77,4 @@ def get_detectors() -> str | bytes | BinaryIO:
         >>> detectors = get_detectors()
         >>> print(detectors)  # Prints JSON of available detectors
     """
-    return get_config("detectors")[1]
+    return (await get_config("detectors"))[1]

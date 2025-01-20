@@ -39,13 +39,6 @@ Visit https://github.com/chrismattmann/tika-python to learn more about it.
     from tika import language
     print(language.from_file('/path/to/file'))
 
-**Use Tika Translate**::
-
-   from tika import translate
-   print(translate.from_file('/path/to/file', 'srcLang', 'dest_lang')
-   # Use auto Language detection feature
-   print(translate.from_file('/path/to/file', 'dest_lang')
-
 ***Tika-Python Configuration***
 You can now use custom configuration files. See https://tika.apache.org/1.18/configuring.html
 for details on writing configuration files. Configuration is set the first time the server is started.
@@ -254,18 +247,27 @@ def run_command(
     verbose: int = VERBOSE,
     encode: int = ENCODE_UTF8,
 ) -> list[Path] | list[tuple[int, str | bytes | BinaryIO]] | str | bytes | BinaryIO:
-    """
-    Run the Tika command by calling the Tika server and return results in JSON format (or plain text).
-    :param cmd: a command from set ``{'parse', 'detect', 'language', 'translate', 'config'}``
-    :param option:
-    :param url_or_paths:
-    :param port:
-    :param outDir:
-    :param server_host:
-    :param tika_server_jar:
-    :param verbose:
-    :param encode:
-    :return: response for the command, usually a ``dict``
+    """Execute a Tika command by calling the Tika server and return results.
+
+    Args:
+        cmd: The command to execute. Must be one of: 'parse', 'detect', 'language', 'translate', or 'config'.
+        option: Command-specific option that modifies the behavior (e.g., 'all' for parse command).
+        url_or_paths: One or more files to process, specified as URLs, file paths, or file-like objects.
+        port: The port number where Tika server is running.
+        out_dir: Optional directory path where output files should be saved. Defaults to None.
+        server_host: The hostname where Tika server is running. Defaults to SERVER_HOST.
+        tika_server_jar: Path to the Tika server JAR file. Defaults to TIKA_SERVER_JAR.
+        verbose: Logging verbosity level. Defaults to VERBOSE.
+        encode: Whether to encode response in UTF-8. Defaults to ENCODE_UTF8.
+
+    Returns:
+        Depending on the command:
+            - For 'parse' with out_dir: List of Path objects for created metadata files
+            - For 'parse' without out_dir: List of tuples containing (status_code, response)
+            - For other commands: String, bytes or file-like object containing the response
+
+    Raises:
+        TikaError: If no URLs/paths are specified for parse/detect commands or if command is unknown.
     """
     if (cmd in "parse" or cmd in "detect") and not url_or_paths:
         msg = "No URLs/paths specified."
@@ -297,14 +299,6 @@ def run_command(
             verbose=verbose,
             tika_server_jar=tika_server_jar,
         )
-    if cmd == "translate":
-        return do_translate(
-            option=option,
-            url_or_paths=url_or_paths,
-            server_endpoint=server_endpoint,
-            verbose=verbose,
-            tika_server_jar=tika_server_jar,
-        )
     if cmd == "config":
         status, resp = get_config(
             option=option,
@@ -322,12 +316,21 @@ def run_command(
 
 
 def get_paths(url_or_paths: Iterable[str | Path | BinaryIO]) -> list[Path]:
-    """
-    Determines if the given URL in url_or_paths is a URL or a file or directory. If it's
-    a directory, it walks the directory and then finds all file paths in it, and ads them
-    too. If it's a file, it adds it to the paths. If it's a URL it just adds it to the path.
-    :param url_or_paths: the url or path to be scanned
-    :return: ``list`` of paths
+    """Convert URLs, file paths, or file-like objects into a list of Path objects.
+
+    Handles single paths, lists of paths, and directories. For directories,
+    recursively finds all files within them.
+
+    Args:
+        url_or_paths: Input paths as URLs, file paths, directories, or file-like objects.
+                     Can be a single item or an iterable of items.
+
+    Returns:
+        list[Path]: List of Path objects for all files found.
+
+    Note:
+        When a directory is provided, all files within it (including in subdirectories)
+        are included in the returned list.
     """
     if not isinstance(url_or_paths, Iterable):
         url_or_paths = [url_or_paths]  # do not recursively walk over letters of a single path which can include "/"
@@ -354,19 +357,30 @@ def parse_and_save(
     meta_extension: str = "_meta.json",
     services: dict[str, str] | None = None,
 ) -> list[Path]:
-    """
-    Parse the objects and write extracted metadata and/or text in JSON format to matching
-    filename with an extension of '_meta.json'.
-    :param option:
-    :param url_or_paths:
-    :param outDir:
-    :param server_endpoint:
-    :param verbose:
-    :param tika_server_jar:
-    :param response_mime_type:
-    :param metaExtension:
-    :param services:
-    :return:
+    """Parse files and save extracted metadata/text as JSON files.
+
+    For each input file, creates a corresponding metadata file with the specified extension.
+    The metadata files contain the extracted information in JSON format.
+
+    Args:
+        option: Parsing option ('meta', 'text', or 'all').
+        url_or_paths: Files to parse as URLs, paths, or file-like objects.
+        out_dir: Directory where metadata files should be saved. If None,
+                saves alongside input files. Defaults to None.
+        server_endpoint: Tika server URL. Defaults to SERVER_ENDPOINT.
+        verbose: Logging verbosity level. Defaults to VERBOSE.
+        tika_server_jar: Path to Tika server JAR. Defaults to TIKA_SERVER_JAR.
+        response_mime_type: Expected response format. Defaults to "application/json".
+        meta_extension: Extension to append to metadata filenames. Defaults to "_meta.json".
+        services: Dict mapping options to service endpoints. Defaults to
+                 {'meta': '/meta', 'text': '/tika', 'all': '/rmeta'}.
+
+    Returns:
+        list[Path]: List of paths to the created metadata files.
+
+    Note:
+        For each input file 'example.pdf', creates 'example.pdf_meta.json'
+        (or similar based on meta_extension) containing the extracted information.
     """
     services = services or {"meta": "/meta", "text": "/tika", "all": "/rmeta"}
     meta_paths: list[Path] = []
@@ -408,16 +422,22 @@ def parse(
     services: dict[str, str] | None = None,
     raw_response: bool = False,
 ) -> list[tuple[int, str | bytes | BinaryIO]]:
-    """
-    Parse the objects and return extracted metadata and/or text in JSON format.
-    :param option:
-    :param url_or_paths:
-    :param server_endpoint:
-    :param verbose:
-    :param tika_server_jar:
-    :param response_mime_type:
-    :param services:
-    :return:
+    """Parse files and extract metadata and/or text content using Tika.
+
+    Args:
+        option: Parsing option ('meta', 'text', or 'all').
+        url_or_paths: Files to parse as URLs, paths, or file-like objects.
+        server_endpoint: Tika server URL. Defaults to SERVER_ENDPOINT.
+        verbose: Logging verbosity level. Defaults to VERBOSE.
+        tika_server_jar: Path to Tika server JAR. Defaults to TIKA_SERVER_JAR.
+        response_mime_type: Expected response format. Defaults to "application/json".
+        services: Dict mapping options to service endpoints. Defaults to
+                 {'meta': '/meta', 'text': '/tika', 'all': '/rmeta'}.
+        raw_response: If True, return raw response content. Defaults to False.
+
+    Returns:
+        list[tuple[int, str | bytes | BinaryIO]]: List of tuples containing
+        (HTTP status code, parsed content) for each processed file.
     """
     services = services or {"meta": "/meta", "text": "/tika", "all": "/rmeta"}
     return [
@@ -449,18 +469,24 @@ def parse_1(
     config_path: str | None = None,
     request_options: dict[str, Any] | None = None,
 ) -> tuple[int, str | bytes | BinaryIO]:
-    """
-    Parse the object and return extracted metadata and/or text in JSON format.
-    :param option:
-    :param url_or_path:
-    :param server_endpoint:
-    :param verbose:
-    :param tika_server_jar:
-    :param response_mime_type:
-    :param services:
-    :param rawResponse:
-    :param headers:
-    :return:
+    """Parse a single file and extract metadata and/or text content using Tika.
+
+    Args:
+        option: Parsing option ('meta', 'text', or 'all').
+        url_or_path: File to parse as URL, path, or file-like object.
+        server_endpoint: Tika server URL. Defaults to SERVER_ENDPOINT.
+        verbose: Logging verbosity level. Defaults to VERBOSE.
+        tika_server_jar: Path to Tika server JAR. Defaults to TIKA_SERVER_JAR.
+        response_mime_type: Expected response format. Defaults to "application/json".
+        services: Dict mapping options to service endpoints. Defaults to
+                 {'meta': '/meta', 'text': '/tika', 'all': '/rmeta'}.
+        raw_response: If True, return raw response content. Defaults to False.
+        headers: Additional HTTP headers for request. Defaults to None.
+        config_path: Path to Tika config file. Defaults to None.
+        request_options: Additional request options. Defaults to None.
+
+    Returns:
+        tuple[int, str | bytes | BinaryIO]: Tuple containing HTTP status code and parsed content.
     """
     services = services or {"meta": "/meta", "text": "/tika", "all": "/rmeta/text"}
     request_options = request_options or {}
@@ -513,16 +539,24 @@ def detect_lang(
     response_mime_type: str = "text/plain",
     services: dict[str, str] | None = None,
 ) -> list[tuple[int, str | bytes | BinaryIO]]:
-    """
-    Detect the language of the provided stream and return its 2 character code as text/plain.
-    :param option:
-    :param url_or_paths:
-    :param server_endpoint:
-    :param verbose:
-    :param tika_server_jar:
-    :param response_mime_type:
-    :param services:
-    :return:
+    """Detect the language of files using Tika.
+
+    Args:
+        option: Detection option (usually 'file').
+        url_or_paths: Files to analyze as URLs, paths, or file-like objects.
+        server_endpoint: Tika server URL. Defaults to SERVER_ENDPOINT.
+        verbose: Logging verbosity level. Defaults to VERBOSE.
+        tika_server_jar: Path to Tika server JAR. Defaults to TIKA_SERVER_JAR.
+        response_mime_type: Expected response format. Defaults to "text/plain".
+        services: Dict mapping options to service endpoints. Defaults to
+                 {'file': '/language/stream'}.
+
+    Returns:
+        list[tuple[int, str | bytes | BinaryIO]]: List of tuples containing
+        (HTTP status code, detected language code) for each file.
+
+    Note:
+        Language codes are returned as ISO 639-1 two-letter codes (e.g., 'en' for English).
     """
     services = services or {"file": "/language/stream"}
     paths = get_paths(url_or_paths)
@@ -542,16 +576,25 @@ def detect_lang_1(
     services: dict[str, str] | None = None,
     request_options: dict[str, Any] | None = None,
 ) -> tuple[int, str | bytes | BinaryIO]:
-    """
-    Detect the language of the provided stream and return its 2 character code as text/plain.
-    :param option:
-    :param url_or_path:
-    :param server_endpoint:
-    :param verbose:
-    :param tika_server_jar:
-    :param response_mime_type:
-    :param services:
-    :return:
+    """Detect the language of a single file using Tika.
+
+    Args:
+        option: Detection option (usually 'file').
+        url_or_path: File to analyze as URL, path, or file-like object.
+        server_endpoint: Tika server URL. Defaults to SERVER_ENDPOINT.
+        verbose: Logging verbosity level. Defaults to VERBOSE.
+        tika_server_jar: Path to Tika server JAR. Defaults to TIKA_SERVER_JAR.
+        response_mime_type: Expected response format. Defaults to "text/plain".
+        services: Dict mapping options to service endpoints. Defaults to
+                 {'file': '/language/stream'}.
+        request_options: Additional request options. Defaults to None.
+
+    Returns:
+        tuple[int, str | bytes | BinaryIO]: Tuple containing HTTP status code
+        and detected language code.
+
+    Raises:
+        TikaError: If the specified option is not valid.
     """
     services = services or {"file": "/language/stream"}
     request_options = request_options or {}
@@ -574,89 +617,6 @@ def detect_lang_1(
     return (status, response)
 
 
-def do_translate(
-    option: str,
-    url_or_paths: Iterable[str | Path | BinaryIO],
-    server_endpoint: str = SERVER_ENDPOINT,
-    verbose: int = VERBOSE,
-    tika_server_jar: Path = TIKA_SERVER_JAR,
-    response_mime_type: str = "text/plain",
-    services: dict[str, str] | None = None,
-) -> list[tuple[int, str | bytes | BinaryIO]]:
-    """
-    Translate the file from source language to destination language.
-    :param option:
-    :param url_or_paths:
-    :param server_endpoint:
-    :param verbose:
-    :param tika_server_jar:
-    :param response_mime_type:
-    :param services:
-    :return:
-    """
-    services = services or {"all": "/translate/all"}
-    paths = get_paths(url_or_paths)
-    return [
-        do_translate_1(option, path, server_endpoint, verbose, tika_server_jar, response_mime_type, services)
-        for path in paths
-    ]
-
-
-def do_translate_1(
-    option: str,
-    url_or_path: str | Path | BinaryIO,
-    server_endpoint: str = SERVER_ENDPOINT,
-    verbose: int = VERBOSE,
-    tika_server_jar: Path = TIKA_SERVER_JAR,
-    response_mime_type: str = "text/plain",
-    services: dict[str, str] | None = None,
-    request_options: dict[str, Any] | None = None,
-) -> tuple[int, str | bytes | BinaryIO]:
-    """
-
-    :param option:
-    :param url_or_path:
-    :param server_endpoint:
-    :param verbose:
-    :param tika_server_jar:
-    :param response_mime_type:
-    :param services:
-    :return:
-    """
-    services = services or {"all": "/translate/all"}
-    request_options = request_options or {}
-    path, mode = get_remote_file(url_or_path, TIKA_FILES_PATH)
-    src_lang = ""
-    dest_lang = ""
-
-    if ":" in option:
-        options = option.rsplit(":")
-        src_lang = options[0]
-        dest_lang = options[1]
-        if len(options) != 2:
-            msg = "Translate options are specified as srcLang:dest_lang or as dest_lang"
-            logger.exception(msg)
-            raise TikaError(msg)
-    else:
-        dest_lang = option
-
-    if src_lang != "" and dest_lang != "":
-        service = services["all"] + "/" + TRANSLATOR + "/" + src_lang + "/" + dest_lang
-    else:
-        service = services["all"] + "/" + TRANSLATOR + "/" + dest_lang
-    status, response = call_server(
-        verb="put",
-        server_endpoint=server_endpoint,
-        service=service,
-        data=get_file_handle(path),
-        headers={"Accept": response_mime_type},
-        verbose=verbose,
-        tika_server_jar=tika_server_jar,
-        request_options=request_options,
-    )
-    return (status, response)
-
-
 def detect_type(
     option: str,
     url_or_paths: Iterable[str | Path | BinaryIO],
@@ -666,16 +626,21 @@ def detect_type(
     response_mime_type: str = "text/plain",
     services: dict[str, str] | None = None,
 ) -> list[tuple[int, str | bytes | BinaryIO]]:
-    """
-    Detect the MIME/media type of the stream and return it in text/plain.
-    :param option:
-    :param url_or_paths:
-    :param server_endpoint:
-    :param verbose:
-    :param tika_server_jar:
-    :param response_mime_type:
-    :param services:
-    :return:
+    """Detect MIME types of files using Tika.
+
+    Args:
+        option: Detection option (usually 'type').
+        url_or_paths: Files to analyze as URLs, paths, or file-like objects.
+        server_endpoint: Tika server URL. Defaults to SERVER_ENDPOINT.
+        verbose: Logging verbosity level. Defaults to VERBOSE.
+        tika_server_jar: Path to Tika server JAR. Defaults to TIKA_SERVER_JAR.
+        response_mime_type: Expected response format. Defaults to "text/plain".
+        services: Dict mapping options to service endpoints. Defaults to
+                 {'type': '/detect/stream'}.
+
+    Returns:
+        list[tuple[int, str | bytes | BinaryIO]]: List of tuples containing
+        (HTTP status code, detected MIME type) for each file.
     """
     services = services or {"type": "/detect/stream"}
     paths = get_paths(url_or_paths)
@@ -704,16 +669,26 @@ def detect_type_1(
     config_path: str | None = None,
     request_options: dict[str, Any] | None = None,
 ) -> tuple[int, str | bytes | BinaryIO]:
-    """
-    Detect the MIME/media type of the stream and return it in text/plain.
-    :param option:
-    :param url_or_path:
-    :param server_endpoint:
-    :param verbose:
-    :param tika_server_jar:
-    :param response_mime_type:
-    :param services:
-    :return:
+    """Detect MIME type of a single file using Tika.
+
+    Args:
+        option: Detection option (usually 'type').
+        url_or_path: File to analyze as URL, path, or file-like object.
+        server_endpoint: Tika server URL. Defaults to SERVER_ENDPOINT.
+        verbose: Logging verbosity level. Defaults to VERBOSE.
+        tika_server_jar: Path to Tika server JAR. Defaults to TIKA_SERVER_JAR.
+        response_mime_type: Expected response format. Defaults to "text/plain".
+        services: Dict mapping options to service endpoints. Defaults to
+                 {'type': '/detect/stream'}.
+        config_path: Path to Tika config file. Defaults to None.
+        request_options: Additional request options. Defaults to None.
+
+    Returns:
+        tuple[int, str | bytes | BinaryIO]: Tuple containing HTTP status code
+        and detected MIME type.
+
+    Raises:
+        TikaError: If the specified option is not valid.
     """
     services = services or {"type": "/detect/stream"}
     request_options = request_options or {}
@@ -752,15 +727,43 @@ def get_config(
     services: dict[str, str] | None = None,
     request_options: dict[str, Any] | None = None,
 ) -> tuple[int, str | bytes | BinaryIO]:
-    """
-    Get the configuration of the Tika Server (parsers, detectors, etc.) and return it in JSON format.
-    :param option:
-    :param server_endpoint:
-    :param verbose:
-    :param tika_server_jar:
-    :param response_mime_type:
-    :param services:
-    :return:
+    """Retrieves configuration information from the Tika server.
+
+    Makes a GET request to the Tika server to fetch configuration details about
+    various server capabilities including parsers, detectors, and MIME types.
+
+    Args:
+        option: The configuration to retrieve. Must be one of:
+            - "mime-types": List of supported MIME types
+            - "detectors": Available content type detectors
+            - "parsers": Available document parsers
+        server_endpoint: URL of the Tika server. Defaults to SERVER_ENDPOINT.
+        verbose: Level of logging verbosity. Defaults to VERBOSE.
+        tika_server_jar: Path to the Tika server JAR file. Defaults to TIKA_SERVER_JAR.
+        response_mime_type: Expected MIME type of the response. Defaults to "application/json".
+        services: Optional dictionary mapping config options to their service endpoints.
+            Defaults to:
+            {
+                "mime-types": "/mime-types",
+                "detectors": "/detectors",
+                "parsers": "/parsers/details"
+            }
+        request_options: Optional dictionary of additional request options.
+
+    Returns:
+        A tuple containing:
+            - HTTP status code (int)
+            - Server response (str, bytes, or BinaryIO) containing the requested configuration
+
+    Raises:
+        TikaError: If the server returns an error status
+        ValueError: If an invalid option is specified
+        RuntimeError: If the server cannot be contacted
+
+    Example:
+        >>> status, config = get_config("parsers")
+        >>> if status == 200:
+        ...     print(config)  # Print parser configuration
     """
     services = services or {"mime-types": "/mime-types", "detectors": "/detectors", "parsers": "/parsers/details"}
     request_options = request_options or {}
@@ -795,18 +798,36 @@ def call_server(  # noqa: C901
     config_path: str | None = None,
     request_options: dict[str, Any] | None = None,
 ) -> tuple[int, str | bytes | BinaryIO]:
-    """
-    Call the Tika Server, do some error checking, and return the response.
-    :param verb:
-    :param server_endpoint:
-    :param service:
-    :param data:
-    :param headers:
-    :param verbose:
-    :param tika_server_jar:
-    :param httpVerbs:
-    :param classpath:
-    :return:
+    """Make an HTTP request to the Tika Server.
+
+    Args:
+        verb: HTTP method ('get', 'put', or 'post').
+        server_endpoint: Base URL of Tika server.
+        service: Service path to append to server_endpoint.
+        data: Request payload. Can be None for GET requests.
+        headers: Dictionary of HTTP headers to include.
+        verbose: Logging verbosity level. Defaults to VERBOSE.
+        tika_server_jar: Path to Tika server JAR. Defaults to TIKA_SERVER_JAR.
+        http_verbs: Dict mapping verb strings to request functions.
+                   Defaults to using requests.get/put/post.
+        classpath: Additional classpath entries. Defaults to None.
+        raw_response: If True, return raw response content. Defaults to False.
+        config_path: Path to Tika configuration file. Defaults to None.
+        request_options: Additional options for requests. Defaults to None.
+
+    Returns:
+        tuple[int, str | bytes | BinaryIO]: Tuple containing:
+            - HTTP status code
+            - Response content (decoded as UTF-8 unless raw_response is True)
+
+    Raises:
+        TikaError: If server endpoint URL is invalid or HTTP verb is unsupported.
+        RuntimeError: If server cannot be contacted.
+
+    Note:
+        - Automatically starts Tika server if needed
+        - Handles Windows-specific file reading behavior
+        - Default timeout is 60 seconds
     """
     http_verbs = http_verbs or {"get": requests.get, "put": requests.put, "post": requests.post}
     request_options = request_options or {}
@@ -881,14 +902,25 @@ def check_tika_server(
     classpath: str | None = None,
     config_path: str | None = None,
 ) -> str:
-    """
-    Check that tika-server is running.  If not, download JAR file and start it up.
-    :param scheme: e.g. http or https
-    :param server_host:
-    :param port:
-    :param tika_server_jar:
-    :param classpath:
-    :return:
+    """Check if Tika server is running and start it if necessary.
+
+    Args:
+        scheme: Protocol to use ('http' or 'https'). Defaults to "http".
+        server_host: Host where server should run. Defaults to SERVER_HOST.
+        port: Port for the server. Defaults to PORT.
+        tika_server_jar: Path to Tika server JAR. Defaults to TIKA_SERVER_JAR.
+        classpath: Additional classpath entries. Defaults to None.
+        config_path: Path to Tika configuration file. Defaults to None.
+
+    Returns:
+        str: Server endpoint URL (e.g., "http://localhost:9998")
+
+    Raises:
+        RuntimeError: If server JAR signature doesn't match or server fails to start.
+
+    Note:
+        Only attempts to start server for localhost or 127.0.0.1 addresses.
+        For remote servers, just returns the endpoint URL.
     """
     if classpath is None:
         classpath = TIKA_SERVER_CLASSPATH
@@ -953,13 +985,25 @@ def start_server(  # noqa: C901
     classpath: str | None = None,
     config_path: str | None = None,
 ) -> bool:
-    """
-    Starts Tika Server
-    :param tika_server_jar: path to tika server jar
-    :param server_host: the host interface address to be used for binding the service
-    :param port: the host port to be used for binding the service
-    :param classpath: Class path value to pass to JVM
-    :return: None
+    """Start the Tika Server as a subprocess.
+
+    Args:
+        tika_server_jar: Path to the Tika server JAR file.
+        java_path: Path to Java executable. Defaults to TIKA_JAVA.
+        java_args: Additional Java arguments. Defaults to TIKA_JAVA_ARGS.
+        server_host: Host interface address for binding. Defaults to SERVER_HOST.
+        port: Port number for the server. Defaults to PORT.
+        classpath: Additional classpath entries. Defaults to None.
+        config_path: Path to Tika configuration file. Defaults to None.
+
+    Returns:
+        bool: True if server started successfully, False otherwise.
+
+    Note:
+        - Creates a log file at TIKA_SERVER_LOG_FILE_PATH/tika-server.log
+        - On Windows, forces server_host to "0.0.0.0"
+        - Attempts to start server multiple times based on TIKA_STARTUP_MAX_RETRY
+        - Sets global TIKA_SERVER_PROCESS variable for later cleanup
     """
     if classpath is None:
         classpath = TIKA_SERVER_CLASSPATH
@@ -1036,12 +1080,19 @@ def kill_server(
     *,
     is_windows: bool = False,
 ) -> None:
-    """
-    Kills the tika server started by the current execution instance.
+    """Kill the running Tika server process.
 
     Args:
-        TikaServerProcess: The subprocess.Popen instance of the Tika server
-        Windows: Boolean flag indicating if running on Windows platform
+        tika_server_process: The subprocess.Popen instance of the Tika server.
+                           If None, logs an error. Defaults to None.
+        is_windows: Boolean flag indicating if running on Windows platform.
+                   Defaults to False.
+
+    Note:
+        - On Windows, uses SIGTERM signal directly
+        - On Unix-like systems, kills the process group
+        - Waits 1 second after sending kill signal
+        - Logs errors if process cannot be killed
     """
     if tika_server_process is None:
         logger.error("Server not running, or was already running before")
@@ -1091,16 +1142,24 @@ def get_remote_file(
     url_or_path: str | Path | BinaryIO,
     dest_path: str | Path,
 ) -> tuple[Path, Literal["local", "remote", "binary"]]:
-    """
-    Fetches URL to local path or just returns absolute path.
+    """Fetch a remote file or handle a local file/binary stream.
 
     Args:
-        url_or_path: resource locator, generally URL or path, or file object
-        dest_path: path to store the resource, usually a path on file system
+        url_or_path: Resource to fetch - can be a URL, local path, or file-like object.
+        dest_path: Local path where to save the file if it needs to be downloaded.
 
     Returns:
-        tuple containing (path, source_type) where source_type is one of:
-        'local', 'remote', or 'binary'
+        tuple[Path, Literal["local", "remote", "binary"]]: Tuple containing:
+            - Path object pointing to the local file
+            - String indicating the source type: "local" for local files,
+              "remote" for downloaded files, "binary" for binary streams
+
+    Raises:
+        TikaError: If a local file does not exist.
+        OSError: If there are issues downloading a remote file.
+
+    Note:
+        For binary stream inputs, a temporary file is created with a timestamp-based name.
     """
     # handle binary stream input
     if not isinstance(url_or_path, Path | str):
@@ -1144,11 +1203,20 @@ def check_port_is_open(
     remote_server_host: str = SERVER_HOST,
     port: str = PORT,
 ) -> bool:
-    """
-    Checks if the specified port is open
-    :param remoteServerHost: the host address
-    :param port: port which needs to be checked
-    :return: ``True`` if port is open, ``False`` otherwise
+    """Check if a specific port is open on the given host.
+
+    Args:
+        remote_server_host: Hostname to check. Defaults to SERVER_HOST.
+        port: Port number to check. Defaults to PORT.
+
+    Returns:
+        bool: True if the port is open and accepting connections, False otherwise.
+
+    Note:
+        This function will exit the program if:
+            - There is a keyboard interrupt
+            - The hostname cannot be resolved
+            - There are connection issues with the server
     """
     remote_server_ip = socket.gethostbyname(remote_server_host)
 

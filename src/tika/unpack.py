@@ -29,19 +29,42 @@ from tika.core import SERVER_ENDPOINT, TikaError, TikaResponse, call_server, par
 
 
 def from_file(
-    filename: Path,
+    file_obj: Path,
+    *,
     server_endpoint: str = SERVER_ENDPOINT,
     request_options: dict[str, Any] | None = None,
 ) -> TikaResponse:
-    """
-    Parse from file
-    :param filename: file
-    :param server_endpoint: Tika server end point (optional)
-    :return:
+    """Parses a file using Apache Tika server's unpack endpoint.
+
+    This function sends the provided file to a Tika server for parsing and returns
+    the extracted content, metadata, and attachments.
+
+    Args:
+        file_obj: A Path object pointing to the file to be parsed.
+        server_endpoint: The URL of the Tika server. Defaults to SERVER_ENDPOINT.
+        request_options: Optional dictionary of request options to pass to the server.
+            Can include parameters like timeout, headers, etc.
+
+    Returns:
+        TikaResponse: A dictionary-like object containing:
+            - content: The extracted text content (str)
+            - metadata: Dictionary of metadata key-value pairs
+            - attachments: Dictionary of embedded files
+            - status: HTTP status code of the response
+
+    Raises:
+        TikaError: If the server returns an unsuccessful status code or if parsing fails.
+        FileNotFoundError: If the specified file does not exist.
+
+    Example:
+        >>> from pathlib import Path
+        >>> response = from_file(Path("document.pdf"))
+        >>> print(response.content)  # Print extracted text
+        >>> print(response.metadata)  # Print document metadata
     """
     tar_output = parse_1(
         option="unpack",
-        url_or_path=filename,
+        url_or_path=file_obj,
         server_endpoint=server_endpoint,
         response_mime_type="application/x-tar",
         services={"meta": "/meta", "text": "/tika", "all": "/rmeta/xml", "unpack": "/unpack/all"},
@@ -52,16 +75,43 @@ def from_file(
 
 
 def from_buffer(
-    string: str | bytes | BinaryIO,
+    buf: str | bytes | BinaryIO,
+    *,
     server_endpoint: str = SERVER_ENDPOINT,
     headers: dict[str, Any] | None = None,
     request_options: dict[str, Any] | None = None,
 ) -> TikaResponse:
-    """
-    Parse from buffered content
-    :param string:  buffered content
-    :param server_endpoint: Tika server URL (Optional)
-    :return: parsed content
+    """Parses content directly from a buffer using Apache Tika server's unpack endpoint.
+
+    This function sends buffered content (string, bytes, or file-like object) to a Tika
+    server for parsing and returns the extracted content, metadata, and attachments.
+
+    Args:
+        buf: The content to be parsed. Can be:
+            - str: Text content
+            - bytes: Binary content
+            - BinaryIO: File-like object containing binary content
+        server_endpoint: The URL of the Tika server. Defaults to SERVER_ENDPOINT.
+        headers: Optional dictionary of additional HTTP headers to send with the request.
+            The 'Accept: application/x-tar' header will be added automatically.
+        request_options: Optional dictionary of request options to pass to the server.
+            Can include parameters like timeout, headers, etc.
+
+    Returns:
+        TikaResponse: A dictionary-like object containing:
+            - content: The extracted text content (str)
+            - metadata: Dictionary of metadata key-value pairs
+            - attachments: Dictionary of embedded files
+            - status: HTTP status code of the response
+
+    Raises:
+        TikaError: If the server returns an unsuccessful status code or if parsing fails.
+        TypeError: If the input string is not of the correct type.
+
+    Example:
+        >>> with open("document.pdf", "rb") as f:
+        ...     response = from_buffer(f.read())
+        >>> print(response.metadata.get("Content-Type"))
     """
 
     headers = headers or {}
@@ -71,7 +121,7 @@ def from_buffer(
         verb="put",
         server_endpoint=server_endpoint,
         service="/unpack/all",
-        data=string,
+        data=buf,
         headers=headers,
         verbose=False,
         raw_response=True,
@@ -86,6 +136,31 @@ def from_buffer(
 
 
 def _parse(tar_output: tuple[int, str | bytes | BinaryIO]) -> TikaResponse:  # noqa: C901
+    """Parses a TAR file containing Tika server output into structured data.
+
+    Internal function that processes the TAR file returned by Tika's unpack endpoint.
+    Extracts metadata, content, and attachments from the TAR archive.
+
+    Args:
+        tar_output: A tuple containing:
+            - status code (int)
+            - TAR file content (str, bytes, or file-like object)
+
+    Returns:
+        TikaResponse: A dictionary-like object containing:
+            - content: The extracted text content (str)
+            - metadata: Dictionary of metadata key-value pairs
+            - attachments: Dictionary of embedded files
+            - status: Always 200 for successful parsing
+
+    Raises:
+        TikaError: If metadata or content extraction fails, or if the TAR file
+            is malformed or missing required members.
+
+    Note:
+        This is an internal function that should not be called directly. Use
+        from_file() or from_buffer() instead.
+    """
     parsed = TikaResponse(
         status=200,
         metadata=None,

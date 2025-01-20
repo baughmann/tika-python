@@ -33,21 +33,43 @@ def from_file(
     config_path: str | None = None,
     request_options: dict[str, Any] | None = None,
 ) -> TikaResponse:
-    """Parse a file for metadata and content.
+    """Parses a file using Apache Tika server and returns structured content and metadata.
 
-    :param obj: Path to file or binary file object (opened with 'rb')
-    :param server_endpoint: Server endpoint URL
-    :param service: Service requested from the tika server:
-        - 'all' (default): Returns recursive text content + metadata
-        - 'meta': Returns only metadata
-        - 'text': Returns only content
-    :param xml_content: Whether to request XML content (False returns text)
-    :param headers: Optional request headers for tika server
-    :param config_path: Optional path to configuration file
-    :param request_options: Optional additional request options
+    This function sends a file to the Tika server for parsing using the specified service
+    and configuration options. It can handle local files, URLs, or binary streams.
 
-    :return: TikaResponse containing metadata and content
-    :rtype: TikaResponse
+    Args:
+        obj: The file to be parsed. Can be:
+            - str: A file path or URL
+            - Path: A pathlib.Path object pointing to a file
+            - BinaryIO: A file-like object in binary read mode
+        server_endpoint: The URL of the Tika server. Defaults to SERVER_ENDPOINT.
+        service: The Tika service to use. Must be one of:
+            - "all": Both content and metadata (default)
+            - "meta": Only metadata
+            - "text": Only text content
+        xml_content: If True, requests XML output instead of plain text.
+            This affects how the content is structured in the response.
+        headers: Additional HTTP headers to include in the request.
+        config_path: Path to a custom Tika configuration file.
+        request_options: Additional options for the HTTP request (e.g., timeout).
+
+    Returns:
+        TikaResponse: A dictionary-like object containing:
+            - content: Extracted text or XML content (str or None)
+            - metadata: Dictionary of document metadata (dict or None)
+            - status: HTTP status code (int)
+            - attachments: Any embedded files (dict or None)
+
+    Raises:
+        TikaError: If the server returns an error or parsing fails
+        FileNotFoundError: If the specified file doesn't exist
+        ValueError: If an invalid service type is specified
+
+    Example:
+        >>> response = from_file("document.pdf", service="all")
+        >>> print(response.content)  # Print extracted text
+        >>> print(response.metadata.get("Content-Type"))  # Get document type
     """
     if not xml_content:
         output = parse_1(
@@ -80,24 +102,40 @@ def from_buffer(
     config_path: str | None = None,
     request_options: dict[str, Any] | None = None,
 ) -> TikaResponse:
-    """Parse content from a buffer.
+    """Parses content directly from a buffer using Apache Tika server.
+
+    This function sends buffered content to the Tika server for parsing and returns
+    structured content and metadata. It automatically uses the /rmeta endpoint for
+    either text or XML output.
 
     Args:
-        buf: Buffer containing content to parse.
-        server_endpoint: Optional server endpoint URL.
-        xml_content: Whether XML content should be requested.
-            Defaults to False which results in text content.
-        headers: Optional request headers to be sent to the tika reset server.
-        config_path: Optional path to configuration file.
-        request_options: Optional additional request options.
+        buf: The content to parse. Can be:
+            - str: Text content
+            - bytes: Binary content
+            - BinaryIO: File-like object with binary content
+        server_endpoint: The URL of the Tika server. Defaults to SERVER_ENDPOINT.
+        xml_content: If True, requests XML output instead of plain text.
+            Affects the structure of the returned content.
+        headers: Additional HTTP headers to include in the request.
+            'Accept: application/json' is automatically added.
+        config_path: Path to a custom Tika configuration file.
+        request_options: Additional options for the HTTP request (e.g., timeout).
 
     Returns:
-        TikaResponse: Contains metadata and content keys.
-            content: String value of parsed content.
-            metadata: Dictionary of metadata values.
+        TikaResponse: A dictionary-like object containing:
+            - content: Extracted text or XML content (str or None)
+            - metadata: Dictionary of document metadata (dict or None)
+            - status: HTTP status code (int)
+            - attachments: Any embedded files (dict or None)
 
     Raises:
-        TikaError: If the server returns a non-OK status code.
+        TikaError: If the server returns a non-200 status code or parsing fails
+        TypeError: If the buffer is not of a supported type
+
+    Example:
+        >>> with open("document.pdf", "rb") as f:
+        ...     response = from_buffer(f.read())
+        >>> print(response.metadata)  # Print all metadata
     """
     headers = headers or {}
     headers.update({"Accept": "application/json"})
@@ -133,15 +171,34 @@ def from_buffer(
 
 
 def _parse(output: tuple[int, str | bytes | BinaryIO | None], service: str = "all") -> TikaResponse:  # noqa: C901
-    """Parse response from Tika REST API server.
+    """Parses the raw response from Tika server into a structured format.
+
+    Internal function that processes the raw response from Tika's REST API and
+    converts it into a structured TikaResponse object. Handles different response
+    formats based on the service type used.
 
     Args:
-        output: Tuple containing status code and raw content from server.
-        service: Type of service requested ('all', 'meta', or 'text').
-            Defaults to 'all'.
+        output: A tuple containing:
+            - HTTP status code (int)
+            - Raw response content (str, bytes, BinaryIO, or None)
+        service: The type of service that was requested. Must be one of:
+            - "all": Both content and metadata (default)
+            - "meta": Only metadata
+            - "text": Only text content
 
     Returns:
-        TikaResponse: Contains metadata and content from parsed response.
+        TikaResponse: A dictionary-like object containing:
+            - content: Extracted text or XML content (str or None)
+            - metadata: Dictionary of document metadata (dict or None)
+            - status: HTTP status code (int)
+            - attachments: Any embedded files (dict or None)
+
+    Notes:
+        - For 'text' service, the raw content is returned directly in the content field
+        - For 'meta' service, the JSON response is parsed into the metadata field
+        - For 'all' service, both content and metadata are extracted from the response
+        - Handles complex metadata cases where values can be either strings or lists
+        - This is an internal function that should not be called directly
     """
     status, raw_content = output
     parsed = TikaResponse(metadata=None, content=None, status=status, attachments=None)

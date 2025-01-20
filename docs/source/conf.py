@@ -12,7 +12,7 @@ import sys
 sys.path.insert(0, os.path.abspath("../../src"))
 
 project = "tika-python"
-copyright = "2024, Chris A. Mattmann"
+copyright = "2024, Chris A. Mattmann"  # noqa: A001
 author = "Chris A. Mattmann"
 
 # -- General configuration ---------------------------------------------------

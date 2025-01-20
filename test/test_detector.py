@@ -1,6 +1,7 @@
 import tempfile
+from collections.abc import Generator
 from pathlib import Path
-from typing import BinaryIO, Generator, cast
+from typing import BinaryIO, cast
 
 import pytest
 
@@ -34,7 +35,7 @@ def sample_files() -> Generator[dict[str, Path], None, None]:
 def test_detect_from_file_path_str(sample_files: dict[str, Path]) -> None:
     """Test MIME type detection from file using string path."""
     result = tika.detector.from_file(str(sample_files["txt"]))
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)
     result_str = result if isinstance(result, str) else result.decode()
     assert "text/plain" in result_str.lower()
 
@@ -42,7 +43,7 @@ def test_detect_from_file_path_str(sample_files: dict[str, Path]) -> None:
 def test_detect_from_file_path_object(sample_files: dict[str, Path]) -> None:
     """Test MIME type detection from file using Path object."""
     result = tika.detector.from_file(sample_files["html"])
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)
     result_str = result if isinstance(result, str) else result.decode()
     assert "text/html" in result_str.lower()
 
@@ -56,7 +57,7 @@ def test_detect_from_binary_file() -> None:
         temp_file.seek(0)
 
         result = tika.detector.from_file(cast(BinaryIO, temp_file))
-        assert isinstance(result, (str, bytes))
+        assert isinstance(result, str | bytes)
         result_str = result if isinstance(result, str) else result.decode()
         assert "application/json" in result_str.lower()
 
@@ -64,7 +65,7 @@ def test_detect_from_binary_file() -> None:
 def test_detect_from_buffer_str() -> None:
     """Test MIME type detection from string buffer."""
     result = tika.detector.from_buffer(TEST_FILES["xml"][1])
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)
     result_str = result if isinstance(result, str) else result.decode()
     assert "application/xml" in result_str.lower()
 
@@ -73,7 +74,7 @@ def test_detect_from_buffer_bytes() -> None:
     """Test MIME type detection from bytes buffer."""
     content = TEST_FILES["html"][1].encode("utf-8")
     result = tika.detector.from_buffer(content)
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)
     result_str = result if isinstance(result, str) else result.decode()
     assert "text/html" in result_str.lower()
 
@@ -82,18 +83,19 @@ def test_detect_with_config_path(sample_files: dict[str, Path]) -> None:
     """Test MIME type detection with custom config path."""
     config_path = "/path/to/config"
     result = tika.detector.from_file(sample_files["txt"], config_path=config_path)
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)
 
 
 def test_detect_with_request_options() -> None:
     """Test MIME type detection with custom request options."""
     options = {"timeout": 30}
     result = tika.detector.from_buffer(TEST_FILES["json"][1], request_options=options)
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)
 
 
 @pytest.mark.parametrize(
-    "ext,filename,content,expected_type", [(ext, data[0], data[1], data[2]) for ext, data in TEST_FILES.items()]
+    ("ext", "filename", "content", "expected_type"),
+    [(ext, data[0], data[1], data[2]) for ext, data in TEST_FILES.items()],
 )
 def test_mime_type_detection_accuracy(
     ext: str,
@@ -109,7 +111,7 @@ def test_mime_type_detection_accuracy(
 
     # Test with actual file
     result = tika.detector.from_file(file_path)
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)
     result_str = result if isinstance(result, str) else result.decode()
     assert expected_type == result_str.casefold()
 
@@ -125,4 +127,4 @@ def test_mime_type_detection_accuracy(
 def test_detect_edge_cases(invalid_input: str) -> None:
     """Test MIME type detection with edge cases."""
     result = tika.detector.from_buffer(invalid_input)
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)

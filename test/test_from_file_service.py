@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# encoding: utf-8
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -46,11 +45,11 @@ def test_default_service(pdf_parse_result: TikaResponse) -> None:
 def test_remote_endpoint() -> None:
     """Test parsing with a remote Tika endpoint."""
     with patch("tika.parser.parse_1") as tika_call_mock, patch("tika.parser._parse"):
-        tika.parser.from_file("filename", "http://tika:9998/tika")
+        tika.parser.from_file("filename", server_endpoint="http://tika:9998/tika")
 
         tika_call_mock.assert_called_once_with(
             option="all",
-            urlOrPath="filename",
+            url_or_path="filename",
             server_endpoint="http://tika:9998/tika",
             headers=None,
             config_path=None,

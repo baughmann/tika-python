@@ -26,6 +26,7 @@ include = ["src/**/*.jar"]
 pythonpath = ["src"]
 testpaths = ["test"]
 markers = ["benchmark: mark a test as a benchmark"]
+asyncio_mode = "auto"
 
 [tool.coverage.run]
 relative_files = true
@@ -39,4 +40,61 @@ dev = [
     "ruff>=0.9.2",
     "genbadge[all]>=1.1.1",
     "pytest-html>=4.1.1",
+    "safety>=3.2.14",
 ]
+
+[tool.isort]
+force-single-line = true
+lines-between-types = 1
+force-alphabetical-sort-within-sections = true
+multi_line_output = 3
+include_trailing_comma = true
+
+
+[tool.ruff.lint]
+extend-select = [
+    "TCH", # typecheck
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C",   # flake8-cognitive-complexity
+    "A",   # flake8-builtins
+    "FBT", # flake8-boolean-trap
+    "C4",  # flake8-comprehensions
+    "T20", # flake8-print
+    "RET", # flake8-return
+    "SIM", # flake8-simplify
+    "ERA", # eradicate
+    "ICN", # flake8-import-conventions
+    "PT",  # flake8-pytest-style
+    "PYI", # flake8-pyi
+    "Q",   # flake8-quotes
+    "INP", # flake8-no-pep420
+    "RSE", # flake8-raise
+    "EM",  # flake8-errmsg
+    "T10", # flake8-debugger
+    "BLE", # flake8-blind-except
+    "S",   # flake8-bandit
+    "ISC", # flake8-implicit-str-concat
+    "C90", # mccabe
+    "ANN", # typing-annotations
+]
+extend-ignore = [
+    "ISC001", # Implicit string concatenation -- needed to disable for ruff formatter
+]
+
+[tool.ruff]
+line-length = 120
+show-fixes = true
+src = ["src", "tests"]
+exclude = ["development/notebooks"]
+
+[tool.ruff.lint.per-file-ignores]
+"test/*" = ["ANN", "S"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

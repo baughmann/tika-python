@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# encoding: utf-8
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -52,7 +51,7 @@ def tika_from_buffer_gzip(file: Path | str, headers: Headers = None) -> TikaResp
 @pytest.mark.benchmark
 def tika_from_buffer(file: Path | str, headers: Headers = None) -> TikaResponse:
     """Process file from buffer."""
-    with open(file, mode="r") as file_obj:
+    with open(file) as file_obj:
         return tika.parser.from_buffer(buf=file_obj.read(), headers=headers)
 
 

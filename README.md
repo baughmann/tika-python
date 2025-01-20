@@ -3,6 +3,7 @@ tika-python
 
 ![Tests](./reports/images/tests.svg)
 ![Coverage](./reports/images/coverage.svg)
+[Safety Report](./reports/safety_scan.html)
 
 A Python port of the [Apache Tika](http://tika.apache.org/)
 library that makes Tika available using the

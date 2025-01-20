@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# encoding: utf-8
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -18,14 +17,15 @@
 
 import csv
 import tarfile
+from collections.abc import Generator
 from contextlib import closing
 from http import HTTPStatus
 from io import BytesIO, TextIOWrapper
 from pathlib import Path
 from sys import version_info
-from typing import Any, BinaryIO, Generator
+from typing import Any, BinaryIO
 
-from tika.core import SERVER_ENDPOINT, TikaException, TikaResponse, call_server, parse_1
+from tika.core import SERVER_ENDPOINT, TikaError, TikaResponse, call_server, parse_1
 
 
 def from_file(
@@ -39,16 +39,16 @@ def from_file(
     :param server_endpoint: Tika server end point (optional)
     :return:
     """
-    tarOutput = parse_1(
+    tar_output = parse_1(
         option="unpack",
-        urlOrPath=filename,
+        url_or_path=filename,
         server_endpoint=server_endpoint,
-        responseMimeType="application/x-tar",
+        response_mime_type="application/x-tar",
         services={"meta": "/meta", "text": "/tika", "all": "/rmeta/xml", "unpack": "/unpack/all"},
-        rawResponse=True,
+        raw_response=True,
         request_options=request_options,
     )
-    return _parse(tarOutput=tarOutput)
+    return _parse(tar_output=tar_output)
 
 
 def from_buffer(
@@ -74,82 +74,88 @@ def from_buffer(
         data=string,
         headers=headers,
         verbose=False,
-        rawResponse=True,
+        raw_response=True,
         request_options=request_options,
     )
 
     if status != HTTPStatus.OK:
-        raise TikaException(f"Unexpected response from Tika server ({status}): {response}")
+        msg = f"Unexpected response from Tika server ({status}): {response}"
+        raise TikaError(msg)
 
-    return _parse(tarOutput=(status, response))
+    return _parse(tar_output=(status, response))
 
 
-def _parse(tarOutput) -> TikaResponse:
+def _parse(tar_output: tuple[int, str | bytes | BinaryIO]) -> TikaResponse:  # noqa: C901
     parsed = TikaResponse(
         status=200,
         metadata=None,
         content=None,
         attachments=None,
     )
-    if not tarOutput:
-        return parsed
-    elif tarOutput[1] is None or tarOutput[1] == b"":
+    if not tar_output or tar_output[1] is None or tar_output[1] == b"":
         return parsed
 
-    with tarfile.open(fileobj=BytesIO(tarOutput[1])) as tarFile:
+    with tarfile.open(fileobj=BytesIO(tar_output[1])) as tar_file:  # type: ignore
         # get the member names
-        memberNames = list(tarFile.getnames())
+        member_names = list(tar_file.getnames())
 
         # extract the metadata
         metadata: dict[str, Any] = {}
-        if "__METADATA__" in memberNames:
-            memberNames.remove("__METADATA__")
+        if "__METADATA__" in member_names:
+            member_names.remove("__METADATA__")
 
-        metadataMember = tarFile.getmember("__METADATA__")
-        if not metadataMember.issym() and metadataMember.isfile():
-            extracted = tarFile.extractfile(metadataMember)
+        metadata_member = tar_file.getmember("__METADATA__")
+        if not metadata_member.issym() and metadata_member.isfile():
+            extracted = tar_file.extractfile(metadata_member)
             if not extracted:
-                raise TikaException("Failed to extract metadata from TAR file")
+                msg = "Failed to extract metadata from TAR file"
+                raise TikaError(msg)
             if version_info.major >= 3:
-                with closing(TextIOWrapper(extracted, encoding=tarFile.encoding)) as metadataFile:
-                    metadataReader = csv.reader(_truncate_nulls(metadataFile))
-                    for metadataLine in metadataReader:
+                with closing(TextIOWrapper(extracted, encoding=tar_file.encoding)) as metadata_file:
+                    metadata_reader = csv.reader(_truncate_nulls(metadata_file))
+                    for metadata_line in metadata_reader:
                         # each metadata line comes as a key-value pair, with list values
                         # returned as extra values in the line - convert single values
                         # to non-list values to be consistent with parser metadata
-                        assert len(metadataLine) >= 2
+                        if not len(metadata_line) >= 2:
+                            msg = "Failed to extract metadata from TAR file"
+                            raise TikaError(msg)
 
-                        if len(metadataLine) > 2:
-                            metadata[metadataLine[0]] = metadataLine[1:]
+                        if len(metadata_line) > 2:
+                            metadata[metadata_line[0]] = metadata_line[1:]
                         else:
-                            metadata[metadataLine[0]] = metadataLine[1]
+                            metadata[metadata_line[0]] = metadata_line[1]
             else:
-                extracted = tarFile.extractfile(metadataMember)
+                extracted = tar_file.extractfile(metadata_member)
                 if not extracted:
-                    raise TikaException("Failed to extract metadata from TAR file")
-                with closing(TextIOWrapper(extracted)) as metadataFile:
-                    metadataReader = csv.reader(_truncate_nulls(metadataFile))
-                    for metadataLine in metadataReader:
+                    msg = "Failed to extract metadata from TAR file"
+                    raise TikaError(msg)
+                with closing(TextIOWrapper(extracted)) as metadata_file:
+                    metadata_reader = csv.reader(_truncate_nulls(metadata_file))
+                    for metadata_line in metadata_reader:
                         # each metadata line comes as a key-value pair, with list values
                         # returned as extra values in the line - convert single values
                         # to non-list values to be consistent with parser metadata
-                        assert len(metadataLine) >= 2
+                        if len(metadata_line) < 2:
+                            msg = "Failed to extract metadata from TAR file"
+                            raise TikaError(msg)
 
-                        if len(metadataLine) > 2:
-                            metadata[metadataLine[0]] = metadataLine[1:]
+                        if len(metadata_line) > 2:
+                            metadata[metadata_line[0]] = metadata_line[1:]
                         else:
-                            metadata[metadataLine[0]] = metadataLine[1]
+                            metadata[metadata_line[0]] = metadata_line[1]
 
         # get the content
         content: str = ""
-        if "__TEXT__" in memberNames:
-            memberNames.remove("__TEXT__")
+        if "__TEXT__" in member_names:
+            member_names.remove("__TEXT__")
 
-            contentMember = tarFile.getmember("__TEXT__")
-            if not contentMember.issym() and contentMember.isfile():
-                extracted = tarFile.extractfile(contentMember)
+            content_member = tar_file.getmember("__TEXT__")
+            if not content_member.issym() and content_member.isfile():
+                extracted = tar_file.extractfile(content_member)
                 if not extracted:
-                    raise TikaException("Failed to extract content from TAR file")
+                    msg = "Failed to extract content from TAR file"
+                    raise TikaError(msg)
                 if version_info.major >= 3:
                     with closing(TextIOWrapper(extracted, encoding="utf8")) as content_file:
                         content = content_file.read()
@@ -159,12 +165,13 @@ def _parse(tarOutput) -> TikaResponse:
 
         # get the remaining files as attachments
         attachments: dict[str, Any] = {}
-        for attachment in memberNames:
-            attachmentMember = tarFile.getmember(attachment)
-            if not attachmentMember.issym() and attachmentMember.isfile():
-                extracted = tarFile.extractfile(attachmentMember)
+        for attachment in member_names:
+            attachment_member = tar_file.getmember(attachment)
+            if not attachment_member.issym() and attachment_member.isfile():
+                extracted = tar_file.extractfile(attachment_member)
                 if not extracted:
-                    raise TikaException("Failed to extract attachment from TAR file")
+                    msg = "Failed to extract attachment from TAR file"
+                    raise TikaError(msg)
                 with closing(extracted) as attachment_file:
                     attachments[attachment] = attachment_file.read()
 
@@ -176,6 +183,6 @@ def _parse(tarOutput) -> TikaResponse:
 
 
 # TODO: Remove if/when fixed. https://issues.apache.org/jira/browse/TIKA-3070
-def _truncate_nulls(s) -> Generator[Any, Any, None]:
+def _truncate_nulls(s: list[str] | TextIOWrapper) -> Generator[Any, Any, None]:
     for line in s:
         yield line.replace("\0", "")

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# encoding: utf-8
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -21,11 +20,12 @@ from typing import Any, BinaryIO, cast
 
 import orjson
 
-from tika.core import SERVER_ENDPOINT, TikaException, TikaResponse, call_server, parse_1
+from tika.core import SERVER_ENDPOINT, TikaError, TikaResponse, call_server, parse_1
 
 
 def from_file(
     obj: str | Path | BinaryIO,
+    *,
     server_endpoint: str = SERVER_ENDPOINT,
     service: str = "all",
     xml_content: bool = False,
@@ -51,7 +51,7 @@ def from_file(
     if not xml_content:
         output = parse_1(
             option=service,
-            urlOrPath=obj,
+            url_or_path=obj,
             server_endpoint=server_endpoint,
             headers=headers,
             config_path=config_path,
@@ -60,7 +60,7 @@ def from_file(
     else:
         output = parse_1(
             option=service,
-            urlOrPath=obj,
+            url_or_path=obj,
             server_endpoint=server_endpoint,
             services={"meta": "/meta", "text": "/tika", "all": "/rmeta/xml"},
             headers=headers,
@@ -72,6 +72,7 @@ def from_file(
 
 def from_buffer(
     buf: str | bytes | BinaryIO,
+    *,
     server_endpoint: str = SERVER_ENDPOINT,
     xml_content: bool = False,
     headers: dict[str, Any] | None = None,
@@ -115,12 +116,13 @@ def from_buffer(
         )
 
     if status != HTTPStatus.OK:
-        raise TikaException(f"Unexpected response from Tika server ({status}): {response}")
+        msg = f"Unexpected response from Tika server ({status}): {response}"
+        raise TikaError(msg)
 
     return _parse((status, response))
 
 
-def _parse(output: tuple[int, str | bytes | BinaryIO | None], service: str = "all") -> TikaResponse:
+def _parse(output: tuple[int, str | bytes | BinaryIO | None], service: str = "all") -> TikaResponse:  # noqa: C901
     """Parse response from Tika REST API server."""
     status, raw_content = output
     parsed = TikaResponse(metadata=None, content=None, status=status, attachments=None)
@@ -139,16 +141,15 @@ def _parse(output: tuple[int, str | bytes | BinaryIO | None], service: str = "al
     parsed["metadata"] = {}
     if service == "meta" and isinstance(raw_json, dict):
         for key, value in raw_json.items():
-            if isinstance(value, (str, list)):
+            if isinstance(value, str | list):
                 parsed["metadata"][key] = cast(str | list[str], value)
         return parsed
 
     content: list[str] = []
     if isinstance(raw_json, list):
         for js in raw_json:
-            if "X-TIKA:content" in js:
-                if isinstance(js["X-TIKA:content"], str):
-                    content.append(js["X-TIKA:content"])
+            if "X-TIKA:content" in js and isinstance(js["X-TIKA:content"], str):
+                content.append(js["X-TIKA:content"])
 
         parsed["content"] = "".join(content) if content else None
 
@@ -163,11 +164,11 @@ def _parse(output: tuple[int, str | bytes | BinaryIO | None], service: str = "al
                             if isinstance(current_value, str):
                                 metadata_dict[key] = [current_value]
 
-                            if isinstance(value, str):
+                            if isinstance(value, str):  # noqa: SIM102
                                 if isinstance(metadata_dict[key], list):
                                     cast(list[str], metadata_dict[key]).append(value)
                         else:
-                            if isinstance(value, (str, list)):
+                            if isinstance(value, str | list):
                                 metadata_dict[key] = cast(str | list[str], value)
 
     return parsed

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# encoding: utf-8
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -45,7 +44,7 @@ def test_parser_binary() -> None:
 @profile
 def test_parser_buffer() -> None:
     """Profile memory usage when parsing from buffer."""
-    with open(TEST_PDF_PATH, "r") as file_obj:
+    with open(TEST_PDF_PATH) as file_obj:
         response = tika.parser.from_buffer(file_obj.read(), headers=GZIP_HEADERS)
         assert response is not None
         assert response["status"] == 200

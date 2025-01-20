@@ -1,6 +1,7 @@
 import tempfile
+from collections.abc import Generator
 from pathlib import Path
-from typing import Any, BinaryIO, Generator, cast
+from typing import Any, BinaryIO, cast
 
 import pytest
 
@@ -33,13 +34,13 @@ def sample_files() -> Generator[dict[str, Path], Any, None]:
 def test_detect_from_file_path_str(sample_files: dict[str, Path]) -> None:
     """Test language detection from file using string path."""
     result = tika.language.from_file(str(sample_files["en"]))
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)
 
 
 def test_detect_from_file_path_object(sample_files: dict[str, Path]) -> None:
     """Test language detection from file using Path object."""
     result = tika.language.from_file(sample_files["es"])
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)
 
 
 def test_detect_from_binary_file() -> None:
@@ -50,27 +51,27 @@ def test_detect_from_binary_file() -> None:
         temp_file.seek(0)
 
         result = tika.language.from_file(cast(BinaryIO, temp_file))
-        assert isinstance(result, (str, bytes))
+        assert isinstance(result, str | bytes)
 
 
 def test_detect_from_buffer_str() -> None:
     """Test language detection from string buffer."""
     result = tika.language.from_buffer(TEST_TEXTS["en"])
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)
 
 
 def test_detect_from_buffer_bytes() -> None:
     """Test language detection from bytes buffer."""
     text_bytes = TEST_TEXTS["es"].encode("utf-8")
     result = tika.language.from_buffer(text_bytes)
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)
 
 
 def test_detect_with_request_options() -> None:
     """Test language detection with custom request options."""
     options = {"timeout": 30}
     result = tika.language.from_buffer(TEST_TEXTS["de"], request_options=options)
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)
 
 
 @pytest.mark.parametrize(
@@ -84,4 +85,4 @@ def test_detect_with_request_options() -> None:
 def test_detect_edge_cases(invalid_input: str) -> None:
     """Test language detection with edge cases."""
     result = tika.language.from_buffer(invalid_input)
-    assert isinstance(result, (str, bytes))
+    assert isinstance(result, str | bytes)

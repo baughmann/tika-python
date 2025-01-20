@@ -1,8 +1,8 @@
 from tika import detector, language, parser, unpack
-from tika.core import TikaException, TikaResponse, kill_server, start_server
+from tika.core import TikaError, TikaResponse, kill_server, start_server
 
 __all__ = [
-    "TikaException",
+    "TikaError",
     "TikaResponse",
     "detector",
     "parser",

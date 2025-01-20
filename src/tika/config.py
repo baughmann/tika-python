@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# encoding: utf-8
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -21,13 +20,13 @@ from typing import BinaryIO
 from tika.core import get_config
 
 
-def getParsers() -> str | bytes | BinaryIO:
+def get_parsers() -> str | bytes | BinaryIO:
     return get_config("parsers")[1]
 
 
-def getMimeTypes() -> str | bytes | BinaryIO:
+def get_mime_types() -> str | bytes | BinaryIO:
     return get_config("mime-types")[1]
 
 
-def getDetectors() -> str | bytes | BinaryIO:
+def get_detectors() -> str | bytes | BinaryIO:
     return get_config("detectors")[1]

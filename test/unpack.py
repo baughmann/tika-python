@@ -1,7 +1,7 @@
-# coding=utf8
+from collections.abc import Generator
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, Generator
+from typing import Any
 
 import pytest
 

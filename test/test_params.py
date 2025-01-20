@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# encoding: utf-8
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -32,7 +31,7 @@ def load_test_urls() -> list[str]:
     """Load test URLs from CSV file."""
     csv_path = Path(__file__).parent / "arguments" / "test_remote_content.csv"
 
-    with open(csv_path, "r") as csvfile:
+    with open(csv_path) as csvfile:
         urls = [row[1] for row in csv.reader(csvfile)]
         return urls[1:]  # Skip header row
 

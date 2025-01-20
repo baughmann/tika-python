@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# encoding: utf-8
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -20,7 +19,7 @@ from http import HTTPStatus
 from pathlib import Path
 from typing import Any, BinaryIO
 
-from tika.core import SERVER_ENDPOINT, TikaException, call_server, detect_type_1
+from tika.core import SERVER_ENDPOINT, TikaError, call_server, detect_type_1
 
 
 def from_file(
@@ -35,12 +34,13 @@ def from_file(
     """
     status, response = detect_type_1(
         option="type",
-        urlOrPath=file_obj,
+        url_or_path=file_obj,
         config_path=config_path,
         request_options=request_options,
     )
     if status != HTTPStatus.OK:
-        raise TikaException(f"Unexpected response from Tika server ({status}): {response}")
+        msg = f"Unexpected response from Tika server ({status}): {response}"
+        raise TikaError(msg)
     return response
 
 
@@ -65,6 +65,7 @@ def from_buffer(
         request_options=request_options,
     )
     if status != HTTPStatus.OK:
-        raise TikaException(f"Unexpected response from Tika server ({status}): {response}")
+        msg = f"Unexpected response from Tika server ({status}): {response}"
+        raise TikaError(msg)
 
     return response

@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies with uv
         run: |
           uv sync
-          uv pip install --dev -e .
+          uv pip install -e .
 
       - name: Sphinx APIDoc
         run: |

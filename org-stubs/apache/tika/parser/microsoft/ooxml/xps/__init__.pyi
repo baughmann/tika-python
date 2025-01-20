@@ -1,0 +1,39 @@
+
+import sys
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
+
+import java.io
+import org.apache.poi.ooxml
+import org.apache.poi.ooxml.extractor
+import org.apache.poi.openxml4j.opc
+import org.apache.tika.parser
+import org.apache.tika.parser.microsoft.ooxml
+import typing
+
+
+
+class XPSExtractorDecorator(org.apache.tika.parser.microsoft.ooxml.AbstractOOXMLExtractor):
+    def __init__(self, parseContext: org.apache.tika.parser.ParseContext, pOIXMLTextExtractor: org.apache.poi.ooxml.extractor.POIXMLTextExtractor): ...
+    def getDocument(self) -> org.apache.poi.ooxml.POIXMLDocument: ...
+
+class XPSTextExtractor(org.apache.poi.ooxml.extractor.POIXMLTextExtractor):
+    def __init__(self, oPCPackage: org.apache.poi.openxml4j.opc.OPCPackage): ...
+    def getCoreProperties(self) -> org.apache.poi.ooxml.POIXMLProperties.CoreProperties: ...
+    def getCustomProperties(self) -> org.apache.poi.ooxml.POIXMLProperties.CustomProperties: ...
+    def getDocument(self) -> org.apache.poi.ooxml.POIXMLDocument: ...
+    def getExtendedProperties(self) -> org.apache.poi.ooxml.POIXMLProperties.ExtendedProperties: ...
+    def getFilesystem(self) -> java.io.Closeable: ...
+    def getPackage(self) -> org.apache.poi.openxml4j.opc.OPCPackage: ...
+    def getText(self) -> str: ...
+    def isCloseFilesystem(self) -> bool: ...
+    def setCloseFilesystem(self, boolean: bool) -> None: ...
+
+
+class __module_protocol__(Protocol):
+    # A module protocol which reflects the result of ``jp.JPackage("org.apache.tika.parser.microsoft.ooxml.xps")``.
+
+    XPSExtractorDecorator: typing.Type[XPSExtractorDecorator]
+    XPSTextExtractor: typing.Type[XPSTextExtractor]

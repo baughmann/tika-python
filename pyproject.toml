@@ -7,7 +7,9 @@ authors = [{ name = "Nick Baughman", email = "baughmann1@gmail.com" }]
 requires-python = ">=3.12"
 dependencies = [
     "httpx>=0.28.1",
+    "jpype1>=1.5.1",
     "orjson>=3.10.15",
+    "pydantic>=2.9.2",
     "pyyaml>=6.0.2",
     "requests>=2.32.3",
 ]
@@ -21,6 +23,12 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build]
 include = ["src/**/*.jar"]
+
+[tool.pylance]
+python.analysis.stubPath = "./stubs"
+
+[tool.pyright]
+stubPath = "./stubs"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
@@ -55,6 +63,8 @@ dev = [
     "sphinx-autodoc-defaultargs>=0.1.2",
     "sphinx-git>=11.0.0",
     "pytest-asyncio>=0.25.2",
+    "ipykernel>=6.29.5",
+    "stubgenj>=0.2.12",
 ]
 
 [tool.isort]

@@ -1,0 +1,46 @@
+
+import sys
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
+
+import java.lang
+import java.util
+import jpype
+import org.apache.tika.langdetect.optimaize.metadatafilter
+import org.apache.tika.language.detect
+import typing
+
+
+
+class OptimaizeLangDetector(org.apache.tika.language.detect.LanguageDetector):
+    DEFAULT_MAX_CHARS_FOR_DETECTION: typing.ClassVar[int] = ...
+    DEFAULT_MAX_CHARS_FOR_SHORT_DETECTION: typing.ClassVar[int] = ...
+    @typing.overload
+    def __init__(self): ...
+    @typing.overload
+    def __init__(self, int: int): ...
+    @typing.overload
+    def addText(self, charArray: typing.Union[typing.List[str], jpype.JArray], int: int, int2: int) -> None: ...
+    @typing.overload
+    def addText(self, charSequence: typing.Union[java.lang.CharSequence, str]) -> None: ...
+    @typing.overload
+    def detectAll(self) -> java.util.List[org.apache.tika.language.detect.LanguageResult]: ...
+    @typing.overload
+    def detectAll(self, string: str) -> java.util.List[org.apache.tika.language.detect.LanguageResult]: ...
+    def hasEnoughText(self) -> bool: ...
+    def hasModel(self, string: str) -> bool: ...
+    @typing.overload
+    def loadModels(self) -> org.apache.tika.language.detect.LanguageDetector: ...
+    @typing.overload
+    def loadModels(self, set: java.util.Set[str]) -> org.apache.tika.language.detect.LanguageDetector: ...
+    def reset(self) -> None: ...
+    def setPriors(self, map: typing.Union[java.util.Map[str, float], typing.Mapping[str, float]]) -> org.apache.tika.language.detect.LanguageDetector: ...
+
+
+class __module_protocol__(Protocol):
+    # A module protocol which reflects the result of ``jp.JPackage("org.apache.tika.langdetect.optimaize")``.
+
+    OptimaizeLangDetector: typing.Type[OptimaizeLangDetector]
+    metadatafilter: org.apache.tika.langdetect.optimaize.metadatafilter.__module_protocol__

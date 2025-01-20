@@ -1,0 +1,46 @@
+
+import sys
+if sys.version_info >= (3, 8):
+    from typing import Protocol
+else:
+    from typing_extensions import Protocol
+
+import java.io
+import org.apache.poi.ooxml
+import org.apache.poi.ooxml.extractor
+import org.apache.poi.openxml4j.opc
+import org.apache.poi.xwpf.usermodel
+import org.apache.tika.parser
+import org.apache.tika.parser.microsoft.ooxml.xwpf.ml2006
+import typing
+
+
+
+class XWPFEventBasedWordExtractor(org.apache.poi.ooxml.extractor.POIXMLTextExtractor):
+    def __init__(self, oPCPackage: org.apache.poi.openxml4j.opc.OPCPackage): ...
+    def getCoreProperties(self) -> org.apache.poi.ooxml.POIXMLProperties.CoreProperties: ...
+    def getCustomProperties(self) -> org.apache.poi.ooxml.POIXMLProperties.CustomProperties: ...
+    def getDocument(self) -> org.apache.poi.ooxml.POIXMLDocument: ...
+    def getExtendedProperties(self) -> org.apache.poi.ooxml.POIXMLProperties.ExtendedProperties: ...
+    def getFilesystem(self) -> java.io.Closeable: ...
+    def getPackage(self) -> org.apache.poi.openxml4j.opc.OPCPackage: ...
+    def getText(self) -> str: ...
+    def isCloseFilesystem(self) -> bool: ...
+    def setCloseFilesystem(self, boolean: bool) -> None: ...
+
+class XWPFNumberingShim(org.apache.poi.xwpf.usermodel.XWPFNumbering):
+    def __init__(self, packagePart: org.apache.poi.openxml4j.opc.PackagePart): ...
+
+class XWPFStylesShim:
+    EMPTY_STYLES: typing.ClassVar['XWPFStylesShim'] = ...
+    def __init__(self, packagePart: org.apache.poi.openxml4j.opc.PackagePart, parseContext: org.apache.tika.parser.ParseContext): ...
+    def getStyleName(self, string: str) -> str: ...
+
+
+class __module_protocol__(Protocol):
+    # A module protocol which reflects the result of ``jp.JPackage("org.apache.tika.parser.microsoft.ooxml.xwpf")``.
+
+    XWPFEventBasedWordExtractor: typing.Type[XWPFEventBasedWordExtractor]
+    XWPFNumberingShim: typing.Type[XWPFNumberingShim]
+    XWPFStylesShim: typing.Type[XWPFStylesShim]
+    ml2006: org.apache.tika.parser.microsoft.ooxml.xwpf.ml2006.__module_protocol__

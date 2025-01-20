@@ -54,7 +54,6 @@ or:
 import asyncio
 import codecs
 import getopt
-import hashlib
 import logging
 import os
 import platform
@@ -73,6 +72,8 @@ from subprocess import STDOUT, Popen
 from typing import Any, BinaryIO, Literal, NoReturn, TypedDict
 
 import httpx
+
+from tika.hashing import verify_jar_sha1
 
 USAGE = """
 tika.py [-v] [-e] [-o <outputDir>] [--server <Tikaserver_endpoint>] [--install <UrlToTikaServerJar>] [--port <portNumber>] <command> <option> <urlOrPathToFile>
@@ -182,7 +183,6 @@ logger.setLevel(logging.DEBUG)
 
 IS_WINDOWS = platform.system() == "Windows"
 TIKA_VERSION = os.getenv("TIKA_VERSION", "3.0.0")
-TIKA_JAR_PATH = Path(os.getenv("TIKA_PATH", tempfile.gettempdir()))
 TIKA_FILES_PATH = Path(tempfile.gettempdir())
 TIKA_SERVER_LOG_FILE_PATH = LOG_DIR
 
@@ -193,19 +193,21 @@ def get_bundled_jar_path() -> Path:
     try:
         from importlib.resources import files
 
-        return Path(str(files("tika").joinpath("jars/tika-server-standard-3.0.0.jar")))
+        return Path(str(files("tika").joinpath(f"jars/tika-server-standard-{TIKA_VERSION}.jar")))
     # python 3.7-3.8
     except ImportError:
         from importlib.resources import path
 
-        with path("tika", "jars/tika-server-standard-3.0.0.jar") as jar_path:
+        with path("tika", f"jars/tika-server-standard-{TIKA_VERSION}.jar") as jar_path:
             return Path(str(jar_path))
 
 
 # Replace the existing TikaServerJar definition
+TIKA_SERVER_JAR_SHA1 = os.getenv(
+    "TIKA_SERVER_JAR_SHA1",
+    f"https://repo1.maven.org/maven2/org/apache/tika/tika-server-standard/3.0.0/tika-server-standard-{TIKA_VERSION}.jar.sha1",
+)
 TIKA_SERVER_JAR = Path(os.getenv("TIKA_SERVER_JAR", get_bundled_jar_path()))
-TIKA_JAR_HASH_ALGO: str = os.getenv("TIKA_JAR_HASH_ALGO", "md5")
-
 SERVER_HOST = "localhost"
 PORT = "9998"
 SERVER_ENDPOINT: str = os.getenv("TIKA_SERVER_ENDPOINT", "http://" + SERVER_HOST + ":" + PORT)
@@ -947,18 +949,17 @@ def check_tika_server(
         port = "443" if scheme == "https" else "80"
 
     server_endpoint = f"{scheme}://{server_host}:{port}"
-    jar_path = Path(os.path.join(TIKA_JAR_PATH, "tika-server.jar"))
     if "localhost" in server_endpoint or "127.0.0.1" in server_endpoint:
         already_running = check_port_is_open(remote_server_host=server_host, port=port)
 
         if not already_running:
-            if not check_jar_signature(tika_server_jar=tika_server_jar, jar_path=jar_path):
-                msg = f"Jar signature does not match for JAR {tika_server_jar} at path {jar_path}"
+            if not check_jar_signature(tika_server_jar=tika_server_jar):
+                msg = f"Jar signature does not match for JAR {tika_server_jar} at path {tika_server_jar}"
                 logger.error(msg)
                 raise RuntimeError(msg)
 
             status = start_server(
-                tika_server_jar=jar_path,
+                tika_server_jar=tika_server_jar,
                 java_path=TIKA_JAVA,
                 java_args=TIKA_JAVA_ARGS,
                 server_host=server_host,
@@ -973,26 +974,14 @@ def check_tika_server(
     return server_endpoint
 
 
-def check_jar_signature(tika_server_jar: Path, jar_path: Path) -> bool:
+def check_jar_signature(tika_server_jar: Path) -> bool:
     """
     Checks the signature of Jar
     :param tika_server_jar:
     :param jarPath:
     :return: ``True`` if the signature of the jar matches
     """
-    local_checksum_path = Path(jar_path, TIKA_JAR_HASH_ALGO)
-    if not local_checksum_path.exists():
-        msg = f"Checksum file not found for JAR {tika_server_jar} at path {jar_path}"
-        raise RuntimeError(msg)
-
-    m = hashlib.new(TIKA_JAR_HASH_ALGO)
-
-    with open(jar_path, "rb") as f:
-        bin_contents = f.read()
-        m.update(bin_contents)
-        with open(local_checksum_path) as em:
-            existing_contents = em.read()
-            return existing_contents == m.hexdigest()
+    return verify_jar_sha1(jar_path=TIKA_SERVER_JAR, sha1_source=TIKA_SERVER_JAR_SHA1)
 
 
 def start_server(  # noqa: C901

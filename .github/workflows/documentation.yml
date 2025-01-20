@@ -34,6 +34,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install sphinx furo myst-parser
+          pip install -e .
       - name: Sphinx APIDoc
         run: |
           sphinx-apidoc -f -o docs/source/ src/tika

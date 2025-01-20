@@ -20,51 +20,51 @@
 import os
 import zlib
 
+from memory_profiler import profile
 
 import tika.parser
 import tika.tika
-from memory_profiler import profile
-
-from tika.tests.utils import gzip_compress
+from tests.utils import gzip_compress
 
 
 @profile
 def test_parser_binary():
-    """parse file binary"""
-    file = os.path.join(os.path.dirname(__file__), 'files', 'rwservlet.pdf')
+    """Parse file binary"""
+    file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
 
-    with open(file, 'rb') as file_obj:
-        response = tika.parser.from_file(file_obj, headers={'Accept-Encoding': 'gzip, deflate'})
+    with open(file, "rb") as file_obj:
+        response = tika.parser.from_file(file_obj, headers={"Accept-Encoding": "gzip, deflate"})
 
 
 @profile
 def test_parser_buffer():
-    """parse buffer"""
-    file = os.path.join(os.path.dirname(__file__), 'files', 'rwservlet.pdf')
+    """Parse buffer"""
+    file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
 
-    with open(file, 'rb') as file_obj:
-        response = tika.parser.from_buffer(file_obj.read(), headers={'Accept-Encoding': 'gzip, deflate'})
+    with open(file, "rb") as file_obj:
+        response = tika.parser.from_buffer(file_obj.read(), headers={"Accept-Encoding": "gzip, deflate"})
 
 
 @profile
 def test_parser_zlib():
-    """parse buffer zlib"""
+    """Parse buffer zlib"""
 
-    file = os.path.join(os.path.dirname(__file__), 'files', 'rwservlet.pdf')
+    file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
 
-    with open(file, 'rb') as file_obj:
-        response = tika.parser.from_buffer(zlib.compress(file_obj.read()), headers={'Accept-Encoding': 'gzip, deflate'})
+    with open(file, "rb") as file_obj:
+        response = tika.parser.from_buffer(zlib.compress(file_obj.read()), headers={"Accept-Encoding": "gzip, deflate"})
 
 
 @profile
 def test_parser_gzip():
-    """parse buffer gzip"""
-    file = os.path.join(os.path.dirname(__file__), 'files', 'rwservlet.pdf')
+    """Parse buffer gzip"""
+    file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
 
-    with open(file, 'rb') as file_obj:
-        response = tika.parser.from_buffer(gzip_compress(file_obj.read()), headers={'Accept-Encoding': 'gzip, deflate'})
+    with open(file, "rb") as file_obj:
+        response = tika.parser.from_buffer(gzip_compress(file_obj.read()), headers={"Accept-Encoding": "gzip, deflate"})
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     test_parser_buffer()
     test_parser_binary()
     test_parser_zlib()

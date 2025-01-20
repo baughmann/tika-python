@@ -23,7 +23,7 @@ import zlib
 
 import tika.parser
 import tika.tika
-from tika.tests.utils import HTTPStatusOk, gzip_compress
+from tests.utils import HTTPStatusOk, gzip_compress
 
 
 def test_local_binary(benchmark):

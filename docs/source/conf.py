@@ -27,14 +27,28 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.duration",
     "myst_parser",
+    "sphinx.ext.intersphinx",  # Link to other Sphinx docs
+    "sphinx_autodoc_typehints",  # Better type hint rendering
+    "sphinx.ext.coverage",  # Check documentation coverage
+    "sphinx_design",  # Better UI components
+    "sphinx_sitemap",  # Generate sitemap
+    "sphinx_git",
+    "sphinx_copybutton",  # Add copy button to code blocks
+    "sphinx.ext.autosummary",  # Generate API docs summaries
+    "sphinx_design",  # Add nice UI components
+    "sphinxemoji.sphinxemoji",  # Add emoji support
+    "sphinx_tabs.tabs",  # Add tabbed content
+    "sphinx_togglebutton",  # Add collapsible sections
 ]
 
 templates_path = ["_templates"]
 exclude_patterns = ["test*"]
+sphinxemoji_style = "twemoji"
 
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "furo"
+html_theme = "sphinxawesome_theme"
+html_permalinks_icon = "<span>#</span>"
 html_static_path = ["_static"]

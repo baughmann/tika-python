@@ -1,9 +1,8 @@
 tika-python
 ===========
 
-<!-- Pytest Coverage Comment:Begin -->
-
-<!-- Pytest Coverage Comment:End -->
+![Tests](./reports/images/tests.svg)
+![Coverage](./reports/images/coverage.svg)
 
 A Python port of the [Apache Tika](http://tika.apache.org/)
 library that makes Tika available using the

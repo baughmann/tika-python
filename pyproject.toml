@@ -37,4 +37,6 @@ dev = [
     "pytest-benchmark>=5.1.0",
     "pytest-cov>=6.0.0",
     "ruff>=0.9.2",
+    "genbadge[all]>=1.1.1",
+    "pytest-html>=4.1.1",
 ]

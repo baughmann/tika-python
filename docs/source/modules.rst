@@ -1,8 +1,7 @@
-tika-python
-===========
+tika
+====
 
 .. toctree::
    :maxdepth: 4
 
-   setup
    tika

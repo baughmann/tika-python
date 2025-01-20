@@ -1,14 +1,6 @@
 tika package
 ============
 
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 4
-
-   tika.tests
-
 Submodules
 ----------
 
@@ -16,6 +8,14 @@ tika.config module
 ------------------
 
 .. automodule:: tika.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tika.core module
+----------------
+
+.. automodule:: tika.core
    :members:
    :undoc-members:
    :show-inheritance:
@@ -40,22 +40,6 @@ tika.parser module
 ------------------
 
 .. automodule:: tika.parser
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-tika.tika module
-----------------
-
-.. automodule:: tika.tika
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-tika.translate module
----------------------
-
-.. automodule:: tika.translate
    :members:
    :undoc-members:
    :show-inheritance:

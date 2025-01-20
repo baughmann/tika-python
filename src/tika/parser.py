@@ -33,20 +33,25 @@ def from_file(
     config_path: str | None = None,
     request_options: dict[str, Any] | None = None,
 ) -> TikaResponse:
-    """
-    Parses a file for metadata and content
-    :param filename: path to file which needs to be parsed or binary file using open(path,'rb')
-    :param server_endpoint: Server endpoint url
-    :param service: service requested from the tika server
-                    Default is 'all', which results in recursive text content+metadata.
-                    'meta' returns only metadata
-                    'text' returns only content
-    :param xml_content: Whether or not XML content be requested.
-                    Default is 'False', which results in text content.
-    :param headers: Request headers to be sent to the tika reset server, should
-                    be a dictionary. This is optional
-    :return: dictionary having 'metadata' and 'content' keys.
-            'content' has a str value and metadata has a dict type value.
+    """Parse a file for metadata and content.
+
+    Args:
+        obj: Path to file which needs to be parsed or binary file using open(path,'rb')
+        server_endpoint: Server endpoint url.
+        service: Service requested from the tika server.
+            'all' (default) returns recursive text content + metadata.
+            'meta' returns only metadata.
+            'text' returns only content.
+        xml_content: Whether XML content should be requested.
+            Defaults to False which results in text content.
+        headers: Optional request headers to be sent to the tika reset server.
+        config_path: Optional path to configuration file.
+        request_options: Optional additional request options.
+
+    Returns:
+        TikaResponse: Contains metadata and content keys.
+            content: String value of parsed content.
+            metadata: Dictionary of metadata values.
     """
     if not xml_content:
         output = parse_1(
@@ -79,15 +84,24 @@ def from_buffer(
     config_path: str | None = None,
     request_options: dict[str, Any] | None = None,
 ) -> TikaResponse:
-    """
-    Parses the content from buffer
-    :param string: Buffer value
-    :param server_endpoint: Server endpoint. This is optional
-    :param xml_content: Whether or not XML content be requested.
-                    Default is 'False', which results in text content.
-    :param headers: Request headers to be sent to the tika reset server, should
-                    be a dictionary. This is optional
-    :return:
+    """Parse content from a buffer.
+
+    Args:
+        buf: Buffer containing content to parse.
+        server_endpoint: Optional server endpoint URL.
+        xml_content: Whether XML content should be requested.
+            Defaults to False which results in text content.
+        headers: Optional request headers to be sent to the tika reset server.
+        config_path: Optional path to configuration file.
+        request_options: Optional additional request options.
+
+    Returns:
+        TikaResponse: Contains metadata and content keys.
+            content: String value of parsed content.
+            metadata: Dictionary of metadata values.
+
+    Raises:
+        TikaError: If the server returns a non-OK status code.
     """
     headers = headers or {}
     headers.update({"Accept": "application/json"})
@@ -123,7 +137,16 @@ def from_buffer(
 
 
 def _parse(output: tuple[int, str | bytes | BinaryIO | None], service: str = "all") -> TikaResponse:  # noqa: C901
-    """Parse response from Tika REST API server."""
+    """Parse response from Tika REST API server.
+
+    Args:
+        output: Tuple containing status code and raw content from server.
+        service: Type of service requested ('all', 'meta', or 'text').
+            Defaults to 'all'.
+
+    Returns:
+        TikaResponse: Contains metadata and content from parsed response.
+    """
     status, raw_content = output
     parsed = TikaResponse(metadata=None, content=None, status=status, attachments=None)
 

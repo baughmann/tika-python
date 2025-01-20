@@ -1,20 +1,52 @@
-.. tika-python documentation master file, created by
-   sphinx-quickstart on Sun Apr 14 20:07:31 2024.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to tika-python's documentation!
-=======================================
+=====================================
+
+Overview
+--------
+
+.. include:: readme.rst
+
+API Reference
+============
 
 .. toctree::
-   :maxdepth: 7
-   :caption: Contents:
+   :maxdepth: 2
+   :caption: API Documentation
 
-   readme
    tika
 
-Indices and tables
-==================
+Testing
+=======
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Test Documentation
+
+   test
+
+Developer Guide
+=============
+
+.. code-block:: python
+
+   import tika
+   from tika import parser
+   
+   # Parse a file
+   parsed = parser.from_file('path/to/file')
+   print(parsed["metadata"])
+   print(parsed["content"])
+
+   # Detect MIME type
+   from tika import detector
+   print(detector.from_file('path/to/file'))
+
+   # Detect language
+   from tika import language
+   print(language.from_file('path/to/file'))
+
+Indices and References
+===================
 
 * :ref:`genindex`
 * :ref:`modindex`

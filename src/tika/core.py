@@ -119,10 +119,16 @@ Example usage as python client:
 
 
 class TikaResponse(TypedDict):
+    """Tika response object."""
+
     status: int
+    """HTTP status code"""
     metadata: dict[str, str | list[str]] | None
+    """Metadata extracted from the document(s)"""
     content: str | bytes | BinaryIO | None
+    """Text content extracted from the document(s)"""
     attachments: dict[str, Any] | None
+    """Attachments extracted from the document(s)"""
 
 
 try:
@@ -219,6 +225,8 @@ TIKA_SERVER_PROCESS: Popen[bytes] | None = None
 
 
 class TikaError(Exception):
+    """Custom exception for Tika errors"""
+
     pass
 
 

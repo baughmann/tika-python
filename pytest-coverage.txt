@@ -1,0 +1,1634 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.8, pytest-8.3.4, pluggy-1.5.0
+benchmark: 5.1.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/runner/work/tika-python/tika-python
+configfile: pyproject.toml
+plugins: cov-6.0.0, anyio-4.8.0, benchmark-5.1.0
+collected 56 items / 12 deselected / 44 selected
+
+test/test_core.py FFFFFFFF                                               [ 18%]
+test/test_detector.py FFFFFFFFFFFFFF                                     [ 50%]
+test/test_from_file_service.py E.EFFF                                    [ 63%]
+test/test_language.py FFFFFFFFF                                          [ 84%]
+test/test_params.py FFFFFF                                               [ 97%]
+test/test_ssl_link.py .                                                  [100%]
+
+==================================== ERRORS ====================================
+____________________ ERROR at setup of test_default_service ____________________
+
+    @pytest.fixture
+    def pdf_parse_result() -> TikaResponse:
+        """Fixture to get parse results for the test PDF."""
+>       return tika.parser.from_file(TEST_PDF_URL)
+
+test/test_from_file_service.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+---------------------------- Captured stderr setup -----------------------------
+2025-01-20 16:37:55,298 [MainThread  ] [INFO ]  Retrieving https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf to /tmp/boe-dias-2019-12-02-pdfs-boe-a-2019-17288.pdf.
+------------------------------ Captured log setup ------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf to /tmp/boe-dias-2019-12-02-pdfs-boe-a-2019-17288.pdf.
+_______________ ERROR at setup of test_default_service_explicit ________________
+
+    @pytest.fixture
+    def pdf_parse_result() -> TikaResponse:
+        """Fixture to get parse results for the test PDF."""
+>       return tika.parser.from_file(TEST_PDF_URL)
+
+test/test_from_file_service.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+---------------------------- Captured stderr setup -----------------------------
+2025-01-20 16:37:56,011 [MainThread  ] [INFO ]  Retrieving https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf to /tmp/boe-dias-2019-12-02-pdfs-boe-a-2019-17288.pdf.
+------------------------------ Captured log setup ------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf to /tmp/boe-dias-2019-12-02-pdfs-boe-a-2019-17288.pdf.
+=================================== FAILURES ===================================
+_______________________________ test_remote_pdf ________________________________
+
+    def test_remote_pdf() -> None:
+        """Test parsing a remote PDF file."""
+>       result = tika.parser.from_file("http://appsrv.achd.net/reports/rwservlet?food_rep_insp&P_ENCOUNTER=201504160015")
+
+test/test_core.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:37:40,046 [MainThread  ] [INFO ]  Retrieving http://appsrv.achd.net/reports/rwservlet?food_rep_insp&P_ENCOUNTER=201504160015 to /tmp/reports-rwservlet.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving http://appsrv.achd.net/reports/rwservlet?food_rep_insp&P_ENCOUNTER=201504160015 to /tmp/reports-rwservlet.
+_______________________________ test_remote_html _______________________________
+
+    def test_remote_html() -> None:
+        """Test parsing a remote HTML file."""
+>       result = tika.parser.from_file("http://neverssl.com/index.html")
+
+test/test_core.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:37:45,654 [MainThread  ] [INFO ]  Retrieving http://neverssl.com/index.html to /tmp/index.html.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving http://neverssl.com/index.html to /tmp/index.html.
+_______________________________ test_remote_mp3 ________________________________
+
+    def test_remote_mp3() -> None:
+        """Test parsing a remote MP3 file."""
+>       result = tika.parser.from_file("https://archive.org/download/Ainst-Spaceshipdemo.mp3/Ainst-Spaceshipdemo.mp3")
+
+test/test_core.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:37:45,988 [MainThread  ] [INFO ]  Retrieving https://archive.org/download/Ainst-Spaceshipdemo.mp3/Ainst-Spaceshipdemo.mp3 to /tmp/download-ainst-spaceshipdemo.mp3-ainst-spaceshipdemo.mp3.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://archive.org/download/Ainst-Spaceshipdemo.mp3/Ainst-Spaceshipdemo.mp3 to /tmp/download-ainst-spaceshipdemo.mp3-ainst-spaceshipdemo.mp3.
+_______________________________ test_remote_jpg ________________________________
+
+    def test_remote_jpg() -> None:
+        """Test parsing a remote JPG file."""
+>       result = tika.parser.from_file("https://placehold.co/600x400.jpg")
+
+test/test_core.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:37:53,563 [MainThread  ] [INFO ]  Retrieving https://placehold.co/600x400.jpg to /tmp/600x400.jpg.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://placehold.co/600x400.jpg to /tmp/600x400.jpg.
+______________________________ test_local_binary _______________________________
+
+pdf_file = <_io.BufferedReader name='/home/runner/work/tika-python/tika-python/test/files/rwservlet.pdf'>
+
+    def test_local_binary(pdf_file: BinaryIO) -> None:
+        """Test parsing a local binary file."""
+>       result = tika.parser.from_file(pdf_file)
+
+test/test_core.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+______________________________ test_local_buffer _______________________________
+
+    def test_local_buffer() -> None:
+        """Test parsing text from a buffer."""
+>       result = tika.parser.from_buffer("Good evening, Dave")
+
+test/test_core.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:95: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_______________________________ test_local_path ________________________________
+
+    def test_local_path() -> None:
+        """Test parsing a local file path."""
+>       result = tika.parser.from_file(TEST_PDF_PATH)
+
+test/test_core.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_______________________________ test_kill_server _______________________________
+
+pdf_file = <_io.BufferedReader name='/home/runner/work/tika-python/tika-python/test/files/rwservlet.pdf'>
+
+    def test_kill_server(pdf_file: BinaryIO) -> None:
+        """Test parsing a file and then killing the server."""
+>       tika.parser.from_file(pdf_file)
+
+test/test_core.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+________________________ test_detect_from_file_path_str ________________________
+
+sample_files = {'html': PosixPath('/tmp/tmp90e_adje/page.html'), 'json': PosixPath('/tmp/tmp90e_adje/data.json'), 'txt': PosixPath('/tmp/tmp90e_adje/plain.txt'), 'xml': PosixPath('/tmp/tmp90e_adje/config.xml')}
+
+    def test_detect_from_file_path_str(sample_files: dict[str, Path]) -> None:
+        """Test MIME type detection from file using string path."""
+>       result = tika.detector.from_file(str(sample_files["txt"]))
+
+test/test_detector.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:36: in from_file
+    status, response = detect_type_1(
+src/tika/core.py:689: in detect_type_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+______________________ test_detect_from_file_path_object _______________________
+
+sample_files = {'html': PosixPath('/tmp/tmphnna682h/page.html'), 'json': PosixPath('/tmp/tmphnna682h/data.json'), 'txt': PosixPath('/tmp/tmphnna682h/plain.txt'), 'xml': PosixPath('/tmp/tmphnna682h/config.xml')}
+
+    def test_detect_from_file_path_object(sample_files: dict[str, Path]) -> None:
+        """Test MIME type detection from file using Path object."""
+>       result = tika.detector.from_file(sample_files["html"])
+
+test/test_detector.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:36: in from_file
+    status, response = detect_type_1(
+src/tika/core.py:689: in detect_type_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_________________________ test_detect_from_binary_file _________________________
+
+    def test_detect_from_binary_file() -> None:
+        """Test MIME type detection from binary file object."""
+        content = TEST_FILES["json"][1]
+        with tempfile.NamedTemporaryFile(mode="w+b", suffix=".json") as temp_file:
+            temp_file.write(content.encode("utf-8"))
+            temp_file.flush()
+            temp_file.seek(0)
+    
+>           result = tika.detector.from_file(cast(BinaryIO, temp_file))
+
+test/test_detector.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:36: in from_file
+    status, response = detect_type_1(
+src/tika/core.py:689: in detect_type_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_________________________ test_detect_from_buffer_str __________________________
+
+    def test_detect_from_buffer_str() -> None:
+        """Test MIME type detection from string buffer."""
+>       result = tika.detector.from_buffer(TEST_FILES["xml"][1])
+
+test/test_detector.py:66: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:57: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+________________________ test_detect_from_buffer_bytes _________________________
+
+    def test_detect_from_buffer_bytes() -> None:
+        """Test MIME type detection from bytes buffer."""
+        content = TEST_FILES["html"][1].encode("utf-8")
+>       result = tika.detector.from_buffer(content)
+
+test/test_detector.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:57: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_________________________ test_detect_with_config_path _________________________
+
+sample_files = {'html': PosixPath('/tmp/tmp2fvaims2/page.html'), 'json': PosixPath('/tmp/tmp2fvaims2/data.json'), 'txt': PosixPath('/tmp/tmp2fvaims2/plain.txt'), 'xml': PosixPath('/tmp/tmp2fvaims2/config.xml')}
+
+    def test_detect_with_config_path(sample_files: dict[str, Path]) -> None:
+        """Test MIME type detection with custom config path."""
+        config_path = "/path/to/config"
+>       result = tika.detector.from_file(sample_files["txt"], config_path=config_path)
+
+test/test_detector.py:84: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:36: in from_file
+    status, response = detect_type_1(
+src/tika/core.py:689: in detect_type_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_______________________ test_detect_with_request_options _______________________
+
+    def test_detect_with_request_options() -> None:
+        """Test MIME type detection with custom request options."""
+        options = {"timeout": 30}
+>       result = tika.detector.from_buffer(TEST_FILES["json"][1], request_options=options)
+
+test/test_detector.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:57: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+___ test_mime_type_detection_accuracy[txt-plain.txt-Hello world-text/plain] ____
+
+ext = 'txt', filename = 'plain.txt', content = 'Hello world'
+expected_type = 'text/plain'
+tmp_path = PosixPath('/tmp/pytest-of-runner/pytest-0/test_mime_type_detection_accur0')
+
+    @pytest.mark.parametrize(
+        "ext,filename,content,expected_type", [(ext, data[0], data[1], data[2]) for ext, data in TEST_FILES.items()]
+    )
+    def test_mime_type_detection_accuracy(
+        ext: str,
+        filename: str,
+        content: str,
+        expected_type: str,
+        tmp_path: Path,
+    ) -> None:
+        """Test accuracy of MIME type detection for various file types."""
+        # Create actual file with content
+        file_path = tmp_path / filename
+        file_path.write_text(content)
+    
+        # Test with actual file
+>       result = tika.detector.from_file(file_path)
+
+test/test_detector.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:36: in from_file
+    status, response = detect_type_1(
+src/tika/core.py:689: in detect_type_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_ test_mime_type_detection_accuracy[html-page.html-<html><body>Hello</body></html>-text/html] _
+
+ext = 'html', filename = 'page.html'
+content = '<html><body>Hello</body></html>', expected_type = 'text/html'
+tmp_path = PosixPath('/tmp/pytest-of-runner/pytest-0/test_mime_type_detection_accur1')
+
+    @pytest.mark.parametrize(
+        "ext,filename,content,expected_type", [(ext, data[0], data[1], data[2]) for ext, data in TEST_FILES.items()]
+    )
+    def test_mime_type_detection_accuracy(
+        ext: str,
+        filename: str,
+        content: str,
+        expected_type: str,
+        tmp_path: Path,
+    ) -> None:
+        """Test accuracy of MIME type detection for various file types."""
+        # Create actual file with content
+        file_path = tmp_path / filename
+        file_path.write_text(content)
+    
+        # Test with actual file
+>       result = tika.detector.from_file(file_path)
+
+test/test_detector.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:36: in from_file
+    status, response = detect_type_1(
+src/tika/core.py:689: in detect_type_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_ test_mime_type_detection_accuracy[json-data.json-{"key": "value"}-application/json] _
+
+ext = 'json', filename = 'data.json', content = '{"key": "value"}'
+expected_type = 'application/json'
+tmp_path = PosixPath('/tmp/pytest-of-runner/pytest-0/test_mime_type_detection_accur2')
+
+    @pytest.mark.parametrize(
+        "ext,filename,content,expected_type", [(ext, data[0], data[1], data[2]) for ext, data in TEST_FILES.items()]
+    )
+    def test_mime_type_detection_accuracy(
+        ext: str,
+        filename: str,
+        content: str,
+        expected_type: str,
+        tmp_path: Path,
+    ) -> None:
+        """Test accuracy of MIME type detection for various file types."""
+        # Create actual file with content
+        file_path = tmp_path / filename
+        file_path.write_text(content)
+    
+        # Test with actual file
+>       result = tika.detector.from_file(file_path)
+
+test/test_detector.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:36: in from_file
+    status, response = detect_type_1(
+src/tika/core.py:689: in detect_type_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_ test_mime_type_detection_accuracy[xml-config.xml-<?xml version='1.0'?><root></root>-application/xml] _
+
+ext = 'xml', filename = 'config.xml'
+content = "<?xml version='1.0'?><root></root>"
+expected_type = 'application/xml'
+tmp_path = PosixPath('/tmp/pytest-of-runner/pytest-0/test_mime_type_detection_accur3')
+
+    @pytest.mark.parametrize(
+        "ext,filename,content,expected_type", [(ext, data[0], data[1], data[2]) for ext, data in TEST_FILES.items()]
+    )
+    def test_mime_type_detection_accuracy(
+        ext: str,
+        filename: str,
+        content: str,
+        expected_type: str,
+        tmp_path: Path,
+    ) -> None:
+        """Test accuracy of MIME type detection for various file types."""
+        # Create actual file with content
+        file_path = tmp_path / filename
+        file_path.write_text(content)
+    
+        # Test with actual file
+>       result = tika.detector.from_file(file_path)
+
+test/test_detector.py:111: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:36: in from_file
+    status, response = detect_type_1(
+src/tika/core.py:689: in detect_type_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+___________________________ test_detect_edge_cases[] ___________________________
+
+invalid_input = ''
+
+    @pytest.mark.parametrize(
+        "invalid_input",
+        [
+            "",  # Empty string
+            " ",  # Whitespace only
+            "\n\n",  # Just newlines
+        ],
+    )
+    def test_detect_edge_cases(invalid_input: str) -> None:
+        """Test MIME type detection with edge cases."""
+>       result = tika.detector.from_buffer(invalid_input)
+
+test/test_detector.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:57: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+__________________________ test_detect_edge_cases[ ] ___________________________
+
+invalid_input = ' '
+
+    @pytest.mark.parametrize(
+        "invalid_input",
+        [
+            "",  # Empty string
+            " ",  # Whitespace only
+            "\n\n",  # Just newlines
+        ],
+    )
+    def test_detect_edge_cases(invalid_input: str) -> None:
+        """Test MIME type detection with edge cases."""
+>       result = tika.detector.from_buffer(invalid_input)
+
+test/test_detector.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:57: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_________________________ test_detect_edge_cases[\n\n] _________________________
+
+invalid_input = '\n\n'
+
+    @pytest.mark.parametrize(
+        "invalid_input",
+        [
+            "",  # Empty string
+            " ",  # Whitespace only
+            "\n\n",  # Just newlines
+        ],
+    )
+    def test_detect_edge_cases(invalid_input: str) -> None:
+        """Test MIME type detection with edge cases."""
+>       result = tika.detector.from_buffer(invalid_input)
+
+test/test_detector.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/detector.py:57: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+______________________________ test_text_service _______________________________
+
+    def test_text_service() -> None:
+        """Test parsing file using the content-only service."""
+>       result = tika.parser.from_file(TEST_PDF_URL, service="text")
+
+test/test_from_file_service.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:37:56,822 [MainThread  ] [INFO ]  Retrieving https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf to /tmp/boe-dias-2019-12-02-pdfs-boe-a-2019-17288.pdf.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf to /tmp/boe-dias-2019-12-02-pdfs-boe-a-2019-17288.pdf.
+______________________________ test_meta_service _______________________________
+
+    def test_meta_service() -> None:
+        """Test parsing file using the metadata-only service."""
+>       result = tika.parser.from_file(TEST_PDF_URL, service="meta")
+
+test/test_from_file_service.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:37:57,590 [MainThread  ] [INFO ]  Retrieving https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf to /tmp/boe-dias-2019-12-02-pdfs-boe-a-2019-17288.pdf.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf to /tmp/boe-dias-2019-12-02-pdfs-boe-a-2019-17288.pdf.
+_____________________________ test_invalid_service _____________________________
+
+    def test_invalid_service() -> None:
+        """Test parsing file using an invalid service falls back to default parsing."""
+>       result = tika.parser.from_file(TEST_PDF_URL, service="bad")
+
+test/test_from_file_service.py:90: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:37:58,416 [MainThread  ] [INFO ]  Retrieving https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf to /tmp/boe-dias-2019-12-02-pdfs-boe-a-2019-17288.pdf.
+2025-01-20 16:37:59,210 [MainThread  ] [WARNI]  config option must be one of meta, text, or all; using all.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf to /tmp/boe-dias-2019-12-02-pdfs-boe-a-2019-17288.pdf.
+WARNING  tika.tika:core.py:447 config option must be one of meta, text, or all; using all.
+________________________ test_detect_from_file_path_str ________________________
+
+sample_files = {'de': PosixPath('/tmp/tmpvetnsos2/text_de.txt'), 'en': PosixPath('/tmp/tmpvetnsos2/text_en.txt'), 'es': PosixPath('/tmp/tmpvetnsos2/text_es.txt')}
+
+    def test_detect_from_file_path_str(sample_files: dict[str, Path]) -> None:
+        """Test language detection from file using string path."""
+>       result = tika.language.from_file(str(sample_files["en"]))
+
+test/test_language.py:35: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/language.py:35: in from_file
+    status, response = detect_lang_1(option="file", urlOrPath=obj, request_options=request_options)
+src/tika/core.py:535: in detect_lang_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+______________________ test_detect_from_file_path_object _______________________
+
+sample_files = {'de': PosixPath('/tmp/tmprkgc_riy/text_de.txt'), 'en': PosixPath('/tmp/tmprkgc_riy/text_en.txt'), 'es': PosixPath('/tmp/tmprkgc_riy/text_es.txt')}
+
+    def test_detect_from_file_path_object(sample_files: dict[str, Path]) -> None:
+        """Test language detection from file using Path object."""
+>       result = tika.language.from_file(sample_files["es"])
+
+test/test_language.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/language.py:35: in from_file
+    status, response = detect_lang_1(option="file", urlOrPath=obj, request_options=request_options)
+src/tika/core.py:535: in detect_lang_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_________________________ test_detect_from_binary_file _________________________
+
+    def test_detect_from_binary_file() -> None:
+        """Test language detection from binary file object."""
+        with tempfile.NamedTemporaryFile(mode="w+b") as temp_file:
+            temp_file.write(TEST_TEXTS["de"].encode("utf-8"))
+            temp_file.flush()
+            temp_file.seek(0)
+    
+>           result = tika.language.from_file(cast(BinaryIO, temp_file))
+
+test/test_language.py:52: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/language.py:35: in from_file
+    status, response = detect_lang_1(option="file", urlOrPath=obj, request_options=request_options)
+src/tika/core.py:535: in detect_lang_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_________________________ test_detect_from_buffer_str __________________________
+
+    def test_detect_from_buffer_str() -> None:
+        """Test language detection from string buffer."""
+>       result = tika.language.from_buffer(TEST_TEXTS["en"])
+
+test/test_language.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/language.py:50: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+________________________ test_detect_from_buffer_bytes _________________________
+
+    def test_detect_from_buffer_bytes() -> None:
+        """Test language detection from bytes buffer."""
+        text_bytes = TEST_TEXTS["es"].encode("utf-8")
+>       result = tika.language.from_buffer(text_bytes)
+
+test/test_language.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/language.py:50: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_______________________ test_detect_with_request_options _______________________
+
+    def test_detect_with_request_options() -> None:
+        """Test language detection with custom request options."""
+        options = {"timeout": 30}
+>       result = tika.language.from_buffer(TEST_TEXTS["de"], request_options=options)
+
+test/test_language.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/language.py:50: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+___________________________ test_detect_edge_cases[] ___________________________
+
+invalid_input = ''
+
+    @pytest.mark.parametrize(
+        "invalid_input",
+        [
+            "",  # Empty string
+            " ",  # Whitespace only
+            "123",  # Numbers only
+        ],
+    )
+    def test_detect_edge_cases(invalid_input: str) -> None:
+        """Test language detection with edge cases."""
+>       result = tika.language.from_buffer(invalid_input)
+
+test/test_language.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/language.py:50: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+__________________________ test_detect_edge_cases[ ] ___________________________
+
+invalid_input = ' '
+
+    @pytest.mark.parametrize(
+        "invalid_input",
+        [
+            "",  # Empty string
+            " ",  # Whitespace only
+            "123",  # Numbers only
+        ],
+    )
+    def test_detect_edge_cases(invalid_input: str) -> None:
+        """Test language detection with edge cases."""
+>       result = tika.language.from_buffer(invalid_input)
+
+test/test_language.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/language.py:50: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_________________________ test_detect_edge_cases[123] __________________________
+
+invalid_input = '123'
+
+    @pytest.mark.parametrize(
+        "invalid_input",
+        [
+            "",  # Empty string
+            " ",  # Whitespace only
+            "123",  # Numbers only
+        ],
+    )
+    def test_detect_edge_cases(invalid_input: str) -> None:
+        """Test language detection with edge cases."""
+>       result = tika.language.from_buffer(invalid_input)
+
+test/test_language.py:86: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/language.py:50: in from_buffer
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+_ test_parse_response_exists[https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf] _
+
+test_url = 'https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf'
+
+    def test_parse_response_exists(test_url: str) -> None:
+        """Test that parsing returns a response."""
+>       result = tika.parser.from_file(test_url)
+
+test/test_params.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:38:00,008 [MainThread  ] [INFO ]  Retrieving https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf to /tmp/dc-acrobat-sdk-docs-pdfstandards-pdf32000_2008.pdf.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf to /tmp/dc-acrobat-sdk-docs-pdfstandards-pdf32000_2008.pdf.
+_______ test_parse_response_exists[https://arxiv.org/pdf/2303.08774.pdf] _______
+
+test_url = 'https://arxiv.org/pdf/2303.08774.pdf'
+
+    def test_parse_response_exists(test_url: str) -> None:
+        """Test that parsing returns a response."""
+>       result = tika.parser.from_file(test_url)
+
+test/test_params.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:38:00,951 [MainThread  ] [INFO ]  Retrieving https://arxiv.org/pdf/2303.08774.pdf to /tmp/pdf-2303.08774.pdf.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://arxiv.org/pdf/2303.08774.pdf to /tmp/pdf-2303.08774.pdf.
+_ test_parse_metadata_exists[https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf] _
+
+test_url = 'https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf'
+
+    def test_parse_metadata_exists(test_url: str) -> None:
+        """Test that parsing returns metadata."""
+>       result = tika.parser.from_file(test_url)
+
+test/test_params.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:38:01,338 [MainThread  ] [INFO ]  Retrieving https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf to /tmp/dc-acrobat-sdk-docs-pdfstandards-pdf32000_2008.pdf.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf to /tmp/dc-acrobat-sdk-docs-pdfstandards-pdf32000_2008.pdf.
+_______ test_parse_metadata_exists[https://arxiv.org/pdf/2303.08774.pdf] _______
+
+test_url = 'https://arxiv.org/pdf/2303.08774.pdf'
+
+    def test_parse_metadata_exists(test_url: str) -> None:
+        """Test that parsing returns metadata."""
+>       result = tika.parser.from_file(test_url)
+
+test/test_params.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:38:01,665 [MainThread  ] [INFO ]  Retrieving https://arxiv.org/pdf/2303.08774.pdf to /tmp/pdf-2303.08774.pdf.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://arxiv.org/pdf/2303.08774.pdf to /tmp/pdf-2303.08774.pdf.
+_ test_parse_content_exists[https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf] _
+
+test_url = 'https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf'
+
+    def test_parse_content_exists(test_url: str) -> None:
+        """Test that parsing returns content."""
+>       result = tika.parser.from_file(test_url)
+
+test/test_params.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:38:02,333 [MainThread  ] [INFO ]  Retrieving https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf to /tmp/dc-acrobat-sdk-docs-pdfstandards-pdf32000_2008.pdf.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf to /tmp/dc-acrobat-sdk-docs-pdfstandards-pdf32000_2008.pdf.
+_______ test_parse_content_exists[https://arxiv.org/pdf/2303.08774.pdf] ________
+
+test_url = 'https://arxiv.org/pdf/2303.08774.pdf'
+
+    def test_parse_content_exists(test_url: str) -> None:
+        """Test that parsing returns content."""
+>       result = tika.parser.from_file(test_url)
+
+test/test_params.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/tika/parser.py:52: in from_file
+    output = parse_1(
+src/tika/core.py:460: in parse_1
+    status, response = call_server(
+src/tika/core.py:794: in call_server
+    server_endpoint = check_tika_server(
+src/tika/core.py:863: in check_tika_server
+    if not check_jar_signature(tikaServerJar=tikaServerJar, jarPath=jarPath):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tikaServerJar = PosixPath('/home/runner/work/tika-python/tika-python/src/tika/jars/tika-server-standard-3.0.0.jar')
+jarPath = PosixPath('/tmp/tika-server.jar')
+
+    def check_jar_signature(tikaServerJar, jarPath) -> bool:
+        """
+        Checks the signature of Jar
+        :param tikaServerJar:
+        :param jarPath:
+        :return: ``True`` if the signature of the jar matches
+        """
+>       localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+E       TypeError: sequence item 0: expected str instance, PosixPath found
+
+src/tika/core.py:890: TypeError
+----------------------------- Captured stderr call -----------------------------
+2025-01-20 16:38:02,637 [MainThread  ] [INFO ]  Retrieving https://arxiv.org/pdf/2303.08774.pdf to /tmp/pdf-2303.08774.pdf.
+------------------------------ Captured log call -------------------------------
+INFO     tika.tika:core.py:1115 Retrieving https://arxiv.org/pdf/2303.08774.pdf to /tmp/pdf-2303.08774.pdf.
+--- generated xml file: /home/runner/work/tika-python/tika-python/pytest.xml ---
+
+---------- coverage: platform linux, python 3.12.8-final-0 -----------
+Name                   Stmts   Miss  Cover   Missing
+----------------------------------------------------
+src/tika/config.py         8      8     0%   19-33
+src/tika/core.py         486    292    40%   138, 155-156, 164, 203-207, 238, 242, 246-248, 276-293, 304-314, 342-367, 391-392, 473-475, 498-500, 531-533, 545, 568-570, 597-627, 650-652, 684-686, 705-708, 730-744, 781, 784, 787, 803-832, 853, 855, 864-880, 891-901, 921-1004, 1015-1034, 1044, 1050-1055, 1070-1073, 1094, 1110, 1118-1128, 1146, 1150-1160, 1172-1218, 1232-1252
+src/tika/detector.py      14      6    57%   42-44, 67-70
+src/tika/language.py      14      6    57%   36-38, 59-61
+src/tika/parser.py        56     41    27%   61, 106-120, 125-173
+src/tika/unpack.py        82     69    16%   42-51, 67-84, 88-175, 180-181
+----------------------------------------------------
+TOTAL                    663    422    36%
+
+1 file skipped due to complete coverage.
+
+=========================== short test summary info ============================
+FAILED test/test_core.py::test_remote_pdf - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_core.py::test_remote_html - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_core.py::test_remote_mp3 - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_core.py::test_remote_jpg - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_core.py::test_local_binary - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_core.py::test_local_buffer - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_core.py::test_local_path - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_core.py::test_kill_server - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_detect_from_file_path_str - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_detect_from_file_path_object - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_detect_from_binary_file - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_detect_from_buffer_str - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_detect_from_buffer_bytes - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_detect_with_config_path - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_detect_with_request_options - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_mime_type_detection_accuracy[txt-plain.txt-Hello world-text/plain] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_mime_type_detection_accuracy[html-page.html-<html><body>Hello</body></html>-text/html] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_mime_type_detection_accuracy[json-data.json-{"key": "value"}-application/json] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_mime_type_detection_accuracy[xml-config.xml-<?xml version='1.0'?><root></root>-application/xml] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_detect_edge_cases[] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_detect_edge_cases[ ] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_detector.py::test_detect_edge_cases[\n\n] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_from_file_service.py::test_text_service - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_from_file_service.py::test_meta_service - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_from_file_service.py::test_invalid_service - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_language.py::test_detect_from_file_path_str - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_language.py::test_detect_from_file_path_object - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_language.py::test_detect_from_binary_file - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_language.py::test_detect_from_buffer_str - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_language.py::test_detect_from_buffer_bytes - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_language.py::test_detect_with_request_options - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_language.py::test_detect_edge_cases[] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_language.py::test_detect_edge_cases[ ] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_language.py::test_detect_edge_cases[123] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_params.py::test_parse_response_exists[https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_params.py::test_parse_response_exists[https://arxiv.org/pdf/2303.08774.pdf] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_params.py::test_parse_metadata_exists[https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_params.py::test_parse_metadata_exists[https://arxiv.org/pdf/2303.08774.pdf] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_params.py::test_parse_content_exists[https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf] - TypeError: sequence item 0: expected str instance, PosixPath found
+FAILED test/test_params.py::test_parse_content_exists[https://arxiv.org/pdf/2303.08774.pdf] - TypeError: sequence item 0: expected str instance, PosixPath found
+ERROR test/test_from_file_service.py::test_default_service - TypeError: sequence item 0: expected str instance, PosixPath found
+ERROR test/test_from_file_service.py::test_default_service_explicit - TypeError: sequence item 0: expected str instance, PosixPath found
+============ 40 failed, 2 passed, 12 deselected, 2 errors in 24.13s ============

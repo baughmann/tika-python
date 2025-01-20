@@ -16,12 +16,23 @@
 # limitations under the License.
 #
 
-from .tika import parse1, callServer, ServerEndpoint
-import os
 import json
+from typing import Any
 
-def from_file(filename, serverEndpoint=ServerEndpoint, service='all', xmlContent=False, headers=None, config_path=None, requestOptions={}, raw_response=False):
-    '''
+from tika.tika import ServerEndpoint, callServer, parse1
+
+
+def from_file(
+    filename,
+    serverEndpoint=ServerEndpoint,
+    service="all",
+    xmlContent=False,
+    headers=None,
+    config_path=None,
+    requestOptions={},
+    raw_response=False,
+):
+    """
     Parses a file for metadata and content
     :param filename: path to file which needs to be parsed or binary file using open(path,'rb')
     :param serverEndpoint: Server endpoint url
@@ -35,20 +46,37 @@ def from_file(filename, serverEndpoint=ServerEndpoint, service='all', xmlContent
                     be a dictionary. This is optional
     :return: dictionary having 'metadata' and 'content' keys.
             'content' has a str value and metadata has a dict type value.
-    '''
+    """
     if not xmlContent:
-        output = parse1(service, filename, serverEndpoint, headers=headers, config_path=config_path, requestOptions=requestOptions)
+        output = parse1(
+            service, filename, serverEndpoint, headers=headers, config_path=config_path, requestOptions=requestOptions
+        )
     else:
-        output = parse1(service, filename, serverEndpoint, services={'meta': '/meta', 'text': '/tika', 'all': '/rmeta/xml'},
-                            headers=headers, config_path=config_path, requestOptions=requestOptions)
+        output = parse1(
+            service,
+            filename,
+            serverEndpoint,
+            services={"meta": "/meta", "text": "/tika", "all": "/rmeta/xml"},
+            headers=headers,
+            config_path=config_path,
+            requestOptions=requestOptions,
+        )
     if raw_response:
         return output
     else:
         return _parse(output, service)
 
 
-def from_buffer(string, serverEndpoint=ServerEndpoint, xmlContent=False, headers=None, config_path=None, requestOptions={}, raw_response=False):
-    '''
+def from_buffer(
+    string,
+    serverEndpoint=ServerEndpoint,
+    xmlContent=False,
+    headers=None,
+    config_path=None,
+    requestOptions={},
+    raw_response=False,
+):
+    """
     Parses the content from buffer
     :param string: Buffer value
     :param serverEndpoint: Server endpoint. This is optional
@@ -57,22 +85,41 @@ def from_buffer(string, serverEndpoint=ServerEndpoint, xmlContent=False, headers
     :param headers: Request headers to be sent to the tika reset server, should
                     be a dictionary. This is optional
     :return:
-    '''
+    """
     headers = headers or {}
-    headers.update({'Accept': 'application/json'})
+    headers.update({"Accept": "application/json"})
 
     if not xmlContent:
-        status, response = callServer('put', serverEndpoint, '/rmeta/text', string, headers, False, config_path=config_path, requestOptions=requestOptions)
+        status, response = callServer(
+            "put",
+            serverEndpoint,
+            "/rmeta/text",
+            string,
+            headers,
+            False,
+            config_path=config_path,
+            requestOptions=requestOptions,
+        )
     else:
-        status, response = callServer('put', serverEndpoint, '/rmeta/xml', string, headers, False, config_path=config_path, requestOptions=requestOptions)
+        status, response = callServer(
+            "put",
+            serverEndpoint,
+            "/rmeta/xml",
+            string,
+            headers,
+            False,
+            config_path=config_path,
+            requestOptions=requestOptions,
+        )
 
     if raw_response:
         return (status, response)
     else:
-        return _parse((status,response))
+        return _parse((status, response))
 
-def _parse(output, service='all'):
-    '''
+
+def _parse(output, service="all"):
+    """
     Parses response from Tika REST API server
     :param output: output from Tika Server
     :param service: service requested from the tika server
@@ -80,8 +127,8 @@ def _parse(output, service='all'):
                     'meta' returns only metadata
                     'text' returns only content
     :return: a dictionary having 'metadata' and 'content' values
-    '''
-    parsed={'metadata': None, 'content': None}
+    """
+    parsed: dict[str, Any] = {"metadata": None, "content": None}
     if not output:
         return parsed
 

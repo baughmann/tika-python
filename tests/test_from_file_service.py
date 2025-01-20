@@ -19,6 +19,7 @@
 
 import sys
 import unittest
+
 if sys.version_info >= (3, 3):
     from unittest import mock
 else:
@@ -27,47 +28,47 @@ import tika.parser
 
 
 class CreateTest(unittest.TestCase):
-    'test different services in from_file parsing: Content, Metadata or both in recursive mode'
+    "test different services in from_file parsing: Content, Metadata or both in recursive mode"
 
     def test_default_service(self):
-        'parse file using default service'
-        result = tika.parser.from_file(
-            'https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf')
-        self.assertEqual(result['metadata']['Content-Type'],'application/pdf')
-        self.assertIn('AUTORIDADES Y PERSONAL',result['content'])
-    @mock.patch('tika.parser._parse')
-    @mock.patch('tika.parser.parse1')
+        "Parse file using default service"
+        result = tika.parser.from_file("https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf")
+        self.assertEqual(result["metadata"]["Content-Type"], "application/pdf")
+        self.assertIn("AUTORIDADES Y PERSONAL", result["content"])
+
+    @mock.patch("tika.parser._parse")
+    @mock.patch("tika.parser.parse1")
     def test_remote_endpoint(self, tika_call_mock, _):
-        result = tika.parser.from_file(
-            'filename', 'http://tika:9998/tika')
+        result = tika.parser.from_file("filename", "http://tika:9998/tika")
 
         tika_call_mock.assert_called_with(
-            'all', 'filename', 'http://tika:9998/tika', headers=None, config_path=None,
-            requestOptions={})
-    def test_default_service_explicit(self):
-        'parse file using default service explicitly'
-        result = tika.parser.from_file(
-            'https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf', service='all')
-        self.assertEqual(result['metadata']['Content-Type'],'application/pdf')
-        self.assertIn('AUTORIDADES Y PERSONAL',result['content'])
-    def test_text_service(self):
-        'parse file using the content only service'
-        result = tika.parser.from_file(
-            'https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf', service='text')
-        self.assertIsNone(result['metadata'])
-        self.assertIn('AUTORIDADES Y PERSONAL',result['content'])
-    def test_meta_service(self):
-        'parse file using the content only service'
-        result = tika.parser.from_file(
-            'https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf', service='meta')
-        self.assertIsNone(result['content'])
-        self.assertEqual(result['metadata']['Content-Type'],'application/pdf')
-    def test_invalid_service(self):
-        'parse file using an invalid service should perform the default parsing'
-        result = tika.parser.from_file(
-            'https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf', service='bad')
-        self.assertEqual(result['metadata']['Content-Type'],'application/pdf')
-        self.assertIn('AUTORIDADES Y PERSONAL',result['content'])
+            "all", "filename", "http://tika:9998/tika", headers=None, config_path=None, requestOptions={}
+        )
 
-if __name__ == '__main__':
+    def test_default_service_explicit(self):
+        "Parse file using default service explicitly"
+        result = tika.parser.from_file("https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf", service="all")
+        self.assertEqual(result["metadata"]["Content-Type"], "application/pdf")
+        self.assertIn("AUTORIDADES Y PERSONAL", result["content"])
+
+    def test_text_service(self):
+        "Parse file using the content only service"
+        result = tika.parser.from_file("https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf", service="text")
+        self.assertIsNone(result["metadata"])
+        self.assertIn("AUTORIDADES Y PERSONAL", result["content"])
+
+    def test_meta_service(self):
+        "Parse file using the content only service"
+        result = tika.parser.from_file("https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf", service="meta")
+        self.assertIsNone(result["content"])
+        self.assertEqual(result["metadata"]["Content-Type"], "application/pdf")
+
+    def test_invalid_service(self):
+        "Parse file using an invalid service should perform the default parsing"
+        result = tika.parser.from_file("https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf", service="bad")
+        self.assertEqual(result["metadata"]["Content-Type"], "application/pdf")
+        self.assertIn("AUTORIDADES Y PERSONAL", result["content"])
+
+
+if __name__ == "__main__":
     unittest.main()

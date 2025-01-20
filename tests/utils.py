@@ -20,7 +20,7 @@ import gzip
 def HTTPStatusOk():
     try:
         # python 2.7
-        import httplib
+        import httplib  # type: ignore
 
         return httplib.OK
     except ImportError:
@@ -45,10 +45,11 @@ def gzip_compress(file_obj):
         return gzip.compress(file_obj)
     except AttributeError:
         # python 2.7
-        import StringIO
+        import StringIO  # type: ignore
+
         out = StringIO.StringIO()
         gzip_s = gzip.GzipFile(fileobj=out, mode="wb")
-        gzip_s.write(file_obj.encode('utf-8'))
+        gzip_s.write(file_obj.encode("utf-8"))
         gzip_s.close()
 
         # Get the bytes written to the underlying file object

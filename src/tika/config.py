@@ -14,16 +14,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# 
+#
 
-from .tika import getConfig
+from tika.tika import getConfig
+
 
 def getParsers():
-    return getConfig('parsers')[1]
+    return getConfig("parsers")[1]
+
 
 def getMimeTypes():
-    return getConfig('mime-types')[1]
+    return getConfig("mime-types")[1]
+
 
 def getDetectors():
-    return getConfig('detectors')[1]
-
+    return getConfig("detectors")[1]

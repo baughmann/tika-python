@@ -10,4 +10,12 @@
 .DS_Store
 /setup.cfg
 .idea
-
+.venv
+.vscode
+.pytest_cache
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info

@@ -20,12 +20,11 @@
 import os
 import zlib
 
+from memory_profiler import profile
 
 import tika.parser
 import tika.tika
-from memory_profiler import profile
-
-from tika.tests.utils import gzip_compress
+from tests.utils import gzip_compress
 
 
 @profile

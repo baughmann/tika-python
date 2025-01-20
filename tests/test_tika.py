@@ -21,7 +21,7 @@ import unittest
 
 import tika.parser
 import tika.tika
-from tika.tests.utils import HTTPStatusOk
+from tests.utils import HTTPStatusOk
 
 
 class CreateTest(unittest.TestCase):

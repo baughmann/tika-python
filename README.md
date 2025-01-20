@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/baughmann/tika-python.svg?branch=master)](https://travis-ci.org/baughmann/tika-python)
-[![Coverage Status](https://coveralls.io/repos/github/baughmann/tika-python/badge.svg?branch=master)](https://coveralls.io/github/baughmann/tika-python?branch=master)
+<!-- Pytest Coverage Comment:Begin -->
+<!-- Pytest Coverage Comment:End -->
 
 tika-python
 ===========

@@ -30,6 +30,7 @@ TEST_PDF_PATH = TEST_FILES_DIR / "rwservlet.pdf"
 GZIP_HEADERS = {"Accept-Encoding": "gzip, deflate"}
 
 
+@pytest.mark.benchmark
 @profile
 def test_parser_binary() -> None:
     """Profile memory usage when parsing binary file directly."""
@@ -40,6 +41,7 @@ def test_parser_binary() -> None:
         assert response["content"] is not None
 
 
+@pytest.mark.benchmark
 @profile
 def test_parser_buffer() -> None:
     """Profile memory usage when parsing from buffer."""
@@ -50,6 +52,7 @@ def test_parser_buffer() -> None:
         assert response["content"] is not None
 
 
+@pytest.mark.benchmark
 @profile
 def test_parser_zlib() -> None:
     """Profile memory usage when parsing with zlib compression."""
@@ -60,6 +63,7 @@ def test_parser_zlib() -> None:
         assert response["content"] is not None
 
 
+@pytest.mark.benchmark
 @profile
 def test_parser_gzip() -> None:
     """Profile memory usage when parsing with gzip compression."""
@@ -68,16 +72,3 @@ def test_parser_gzip() -> None:
         assert response is not None
         assert response["status"] == 200
         assert response["content"] is not None
-
-
-@pytest.mark.benchmark
-def main() -> None:
-    """Run all memory profiling tests."""
-    test_parser_buffer()
-    test_parser_binary()
-    test_parser_zlib()
-    test_parser_gzip()
-
-
-if __name__ == "__main__":
-    main()

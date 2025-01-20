@@ -1,9 +1,9 @@
 tika-python
 ===========
 
-![Tests](./reports/images/tests.svg)
-![Coverage](./reports/images/coverage.svg)
-[Safety Report](./reports/safety_scan.html)
+![Tests](https://raw.githubusercontent.com/baughmann/tika-python/refs/heads/master/reports/images/tests.svg)
+![Coverage](https://raw.githubusercontent.com/baughmann/tika-python/refs/heads/master/reports/images/coverage.svg)
+[Safety Report](https://raw.githubusercontent.com/baughmann/tika-python/refs/heads/master/reports/safety_scan.html)
 
 A Python port of the [Apache Tika](http://tika.apache.org/)
 library that makes Tika available using the

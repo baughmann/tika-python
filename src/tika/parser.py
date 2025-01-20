@@ -15,72 +15,73 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from pathlib import Path
+from typing import Any, BinaryIO, cast
 
-import json
-from typing import Any
+import orjson
 
-from tika.tika import ServerEndpoint, callServer, parse1
+from tika.tika import SERVER_ENDPOINT, TikaResponse, call_server, parse_1
 
 
 def from_file(
-    filename,
-    serverEndpoint=ServerEndpoint,
-    service="all",
-    xmlContent=False,
-    headers=None,
-    config_path=None,
-    requestOptions={},
-    raw_response=False,
-):
+    obj: str | Path | BinaryIO,
+    server_endpoint: str = SERVER_ENDPOINT,
+    service: str = "all",
+    xml_content: bool = False,
+    headers: dict[str, Any] | None = None,
+    config_path: str | None = None,
+    request_options: dict[str, Any] | None = None,
+) -> TikaResponse:
     """
     Parses a file for metadata and content
     :param filename: path to file which needs to be parsed or binary file using open(path,'rb')
-    :param serverEndpoint: Server endpoint url
+    :param server_endpoint: Server endpoint url
     :param service: service requested from the tika server
                     Default is 'all', which results in recursive text content+metadata.
                     'meta' returns only metadata
                     'text' returns only content
-    :param xmlContent: Whether or not XML content be requested.
+    :param xml_content: Whether or not XML content be requested.
                     Default is 'False', which results in text content.
     :param headers: Request headers to be sent to the tika reset server, should
                     be a dictionary. This is optional
     :return: dictionary having 'metadata' and 'content' keys.
             'content' has a str value and metadata has a dict type value.
     """
-    if not xmlContent:
-        output = parse1(
-            service, filename, serverEndpoint, headers=headers, config_path=config_path, requestOptions=requestOptions
+    if not xml_content:
+        output = parse_1(
+            option=service,
+            urlOrPath=obj,
+            server_endpoint=server_endpoint,
+            headers=headers,
+            config_path=config_path,
+            request_options=request_options,
         )
     else:
-        output = parse1(
-            service,
-            filename,
-            serverEndpoint,
+        output = parse_1(
+            option=service,
+            urlOrPath=obj,
+            server_endpoint=server_endpoint,
             services={"meta": "/meta", "text": "/tika", "all": "/rmeta/xml"},
             headers=headers,
             config_path=config_path,
-            requestOptions=requestOptions,
+            request_options=request_options,
         )
-    if raw_response:
-        return output
-    else:
-        return _parse(output, service)
+    return _parse(output=output, service=service)
 
 
 def from_buffer(
-    string,
-    serverEndpoint=ServerEndpoint,
-    xmlContent=False,
-    headers=None,
-    config_path=None,
-    requestOptions={},
-    raw_response=False,
-):
+    buf: str | bytes | BinaryIO,
+    server_endpoint: str = SERVER_ENDPOINT,
+    xml_content: bool = False,
+    headers: dict[str, Any] | None = None,
+    config_path: str | None = None,
+    request_options: dict[str, Any] | None = None,
+) -> TikaResponse:
     """
     Parses the content from buffer
     :param string: Buffer value
-    :param serverEndpoint: Server endpoint. This is optional
-    :param xmlContent: Whether or not XML content be requested.
+    :param server_endpoint: Server endpoint. This is optional
+    :param xml_content: Whether or not XML content be requested.
                     Default is 'False', which results in text content.
     :param headers: Request headers to be sent to the tika reset server, should
                     be a dictionary. This is optional
@@ -89,83 +90,131 @@ def from_buffer(
     headers = headers or {}
     headers.update({"Accept": "application/json"})
 
-    if not xmlContent:
-        status, response = callServer(
-            "put",
-            serverEndpoint,
-            "/rmeta/text",
-            string,
-            headers,
-            False,
+    if not xml_content:
+        status, response = call_server(
+            verb="put",
+            server_endpoint=server_endpoint,
+            service="/rmeta/text",
+            data=buf,
+            headers=headers,
+            verbose=False,
             config_path=config_path,
-            requestOptions=requestOptions,
+            request_options=request_options,
         )
     else:
-        status, response = callServer(
-            "put",
-            serverEndpoint,
-            "/rmeta/xml",
-            string,
-            headers,
-            False,
+        status, response = call_server(
+            verb="put",
+            server_endpoint=server_endpoint,
+            service="/rmeta/xml",
+            data=buf,
+            headers=headers,
+            verbose=False,
             config_path=config_path,
-            requestOptions=requestOptions,
+            request_options=request_options,
         )
 
-    if raw_response:
-        return (status, response)
-    else:
-        return _parse((status, response))
+    return _parse((status, response))
 
 
-def _parse(output, service="all"):
-    """
-    Parses response from Tika REST API server
-    :param output: output from Tika Server
-    :param service: service requested from the tika server
-                    Default is 'all', which results in recursive text content+metadata.
-                    'meta' returns only metadata
-                    'text' returns only content
-    :return: a dictionary having 'metadata' and 'content' values
-    """
-    parsed: dict[str, Any] = {"metadata": None, "content": None}
-    if not output:
-        return parsed
+def _parse(output: tuple[int, str | bytes | BinaryIO | None], service: str = "all") -> TikaResponse:
+    """Parse response from Tika REST API server."""
+    status, raw_content = output
+    parsed = TikaResponse(metadata=None, content=None, status=status)
 
-    parsed["status"] = output[0]
-    if output[1] == None or output[1] == "":
+    if not raw_content:
         return parsed
 
     if service == "text":
-        parsed["content"] = output[1]
+        parsed["content"] = raw_content
         return parsed
 
-    realJson = json.loads(output[1])
+    raw_json: dict[str, Any] | list[dict[str, Any]] = orjson.loads(
+        raw_content if not isinstance(raw_content, BinaryIO) else raw_content.read()
+    )
 
     parsed["metadata"] = {}
-    if service == "meta":
-        for key in realJson:
-            parsed["metadata"][key] = realJson[key]
+    if service == "meta" and isinstance(raw_json, dict):
+        for key, value in raw_json.items():
+            if isinstance(value, (str, list)):
+                parsed["metadata"][key] = cast(str | list[str], value)
         return parsed
 
-    content = ""
-    for js in realJson:
-        if "X-TIKA:content" in js:
-            content += js["X-TIKA:content"]
+    content: list[str] = []
+    if isinstance(raw_json, list):
+        for js in raw_json:
+            if "X-TIKA:content" in js:
+                if isinstance(js["X-TIKA:content"], str):
+                    content.append(js["X-TIKA:content"])
 
-    if content == "":
-        content = None
+        parsed["content"] = "".join(content) if content else None
 
-    parsed["content"] = content
+        metadata_dict = parsed["metadata"]
+        if metadata_dict is not None:
+            for js in raw_json:
+                for key, value in js.items():
+                    if key != "X-TIKA:content":
+                        current_value = metadata_dict.get(key)
 
-    for js in realJson:
-        for n in js:
-            if n != "X-TIKA:content":
-                if n in parsed["metadata"]:
-                    if not isinstance(parsed["metadata"][n], list):
-                        parsed["metadata"][n] = [parsed["metadata"][n]]
-                    parsed["metadata"][n].append(js[n])
-                else:
-                    parsed["metadata"][n] = js[n]
+                        if current_value is not None:
+                            if isinstance(current_value, str):
+                                metadata_dict[key] = [current_value]
+
+                            if isinstance(value, str):
+                                if isinstance(metadata_dict[key], list):
+                                    cast(list[str], metadata_dict[key]).append(value)
+                        else:
+                            if isinstance(value, (str, list)):
+                                metadata_dict[key] = cast(str | list[str], value)
 
     return parsed
+
+
+# def _parse(output: tuple[int, str | bytes | BinaryIO | None], service="all") -> TikaResponse:
+#     """
+#     Parses response from Tika REST API server
+#     :param output: output from Tika Server
+#     :param service: service requested from the tika server
+#                     Default is 'all', which results in recursive text content+metadata.
+#                     'meta' returns only metadata
+#                     'text' returns only content
+#     :return: a dictionary having 'metadata' and 'content' values
+#     """
+#     status, raw_content = output
+#     parsed = TikaResponse(metadata=None, content=None, status=status)
+
+#     if not raw_content:
+#         return parsed
+
+#     if service == "text":
+#         parsed["content"] = raw_content
+#         return parsed
+
+#     raw_json: dict[str, Any] | list[dict[str, Any]] = orjson.loads(
+#         raw_content if not isinstance(raw_content, BinaryIO) else raw_content.read()
+#     )
+
+#     parsed["metadata"] = {}
+#     if service == "meta" and isinstance(raw_json, dict):
+#         for key in raw_json:
+#             parsed["metadata"][key] = raw_json[key]
+#         return parsed
+
+#     content: str = ""
+#     if isinstance(raw_json, list):
+#         for js in raw_json:
+#             if "X-TIKA:content" in js:
+#                 content += js["X-TIKA:content"]
+
+#         parsed["content"] = content or None
+
+#         for js in raw_json:
+#             for n in js:
+#                 if n != "X-TIKA:content":
+#                     if n in parsed["metadata"]:
+#                         if not isinstance(parsed["metadata"][n], list):
+#                             parsed["metadata"][n] = [parsed["metadata"][n]]
+#                         parsed["metadata"][n].append(js[n])
+#                     else:
+#                         parsed["metadata"][n] = js[n]
+
+#     return parsed

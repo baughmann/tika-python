@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # encoding: utf-8
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
@@ -13,9 +14,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import gzip
 
-try:
-    __import__('pkg_resources').declare_namespace(__name__)
-except ImportError:
-    from pkgutil import extend_path
-    __path__ = extend_path(__path__, __name__)
+
+def gzip_compress(file_obj):
+    try:
+        # python > 3.4
+        return gzip.compress(file_obj)
+    except AttributeError:
+        # python 2.7
+        import StringIO  # type: ignore
+
+        out = StringIO.StringIO()
+        gzip_s = gzip.GzipFile(fileobj=out, mode="wb")
+        gzip_s.write(file_obj.encode("utf-8"))
+        gzip_s.close()
+
+        # Get the bytes written to the underlying file object
+        return out.getvalue()

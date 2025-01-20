@@ -14,25 +14,43 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# 
+#
 
-from .tika import detectLang1, callServer, ServerEndpoint
+from pathlib import Path
+from typing import Any, BinaryIO
 
-def from_file(filename, requestOptions={}):
-    '''
+from tika.tika import SERVER_ENDPOINT, call_server, detect_lang_1
+
+
+def from_file(
+    obj: str | Path | BinaryIO,
+    request_options: dict[str, Any] | None = None,
+) -> str | bytes | BinaryIO:
+    """
     Detects language of the file
     :param filename: path to file whose language needs to be detected
     :return:
-    '''
-    jsonOutput = detectLang1('file', filename, requestOptions=requestOptions)
-    return jsonOutput[1]
+    """
+    _, content = detect_lang_1(option="file", urlOrPath=obj, request_options=request_options)
+    return content
 
-def from_buffer(string, requestOptions={}):
-    '''
+
+def from_buffer(
+    buf: str | bytes | BinaryIO,
+    request_options: dict[str, Any] | None = None,
+) -> str | bytes | BinaryIO:
+    """
     Detects language of content in the buffer
     :param string: buffered data
     :return:
-    '''
-    status, response = callServer('put', ServerEndpoint, '/language/string', string,
-                                  {'Accept': 'text/plain'}, False, requestOptions=requestOptions)
+    """
+    _, response = call_server(
+        verb="put",
+        server_endpoint=SERVER_ENDPOINT,
+        service="/language/string",
+        data=buf,
+        headers={"Accept": "text/plain"},
+        verbose=False,
+        request_options=request_options,
+    )
     return response

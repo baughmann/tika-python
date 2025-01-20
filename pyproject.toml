@@ -5,7 +5,12 @@ description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "Nick Baughman", email = "baughmann1@gmail.com" }]
 requires-python = ">=3.12"
-dependencies = ["pyyaml>=6.0.2", "requests>=2.32.3"]
+dependencies = [
+    "httpx>=0.28.1",
+    "orjson>=3.10.15",
+    "pyyaml>=6.0.2",
+    "requests>=2.32.3",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/tika"]
@@ -19,7 +24,7 @@ include = ["src/tika/**/*.jar"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
-testpaths = ["tests"]
+testpaths = ["test"]
 
 [dependency-groups]
 dev = [

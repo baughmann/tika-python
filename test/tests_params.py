@@ -15,21 +15,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#Reference
-#https://docs.python.org/2/library/unittest.html
-#http://eli.thegreenplace.net/2011/08/02/python-unit-testing-parametrized-test-cases
-#public domain license reference: http://eli.thegreenplace.net/pages/code
- 
-#Run
-#python tika/tests/tests_params.py
+# Reference
+# https://docs.python.org/2/library/unittest.html
+# http://eli.thegreenplace.net/2011/08/02/python-unit-testing-parametrized-test-cases
+# public domain license reference: http://eli.thegreenplace.net/pages/code
+
+# Run
+# python tika/tests/tests_params.py
 
 import csv
 import unittest
+from typing import Any, Generator
+
 import tika.parser
+
 
 class CreateTest(unittest.TestCase):
     "test for file types"
-    def __init__(self, methodName='runTest', param1=None, param2=None):
+
+    def __init__(self, methodName="runTest", param1=None, param2=None):
         super(CreateTest, self).__init__(methodName)
         self.param1 = param1
 
@@ -38,43 +42,48 @@ class CreateTest(unittest.TestCase):
         testloader = unittest.TestLoader()
         testnames = testloader.getTestCaseNames(test_case)
         suite = unittest.TestSuite()
-        for name in ['check_true', 'check_meta', 'check_content']:
+        for name in ["check_true", "check_meta", "check_content"]:
             suite.addTest(test_case(name, param1=param1, param2=param2))
         return suite
 
+
 class RemoteTest(CreateTest):
     def check_true(self):
-        self.param1 = tika.parser.from_file(self.param1)
+        self.param1 = tika.parser.from_file(self.param1)  # type: ignore
         self.assertTrue(self.param1)
+
     def check_meta(self):
-        self.param1 = tika.parser.from_file(self.param1)
-        self.assertTrue(self.param1['metadata'])
+        self.param1 = tika.parser.from_file(self.param1)  # type: ignore
+        self.assertTrue(self.param1["metadata"])
+
     def check_content(self):
-        self.param1 = tika.parser.from_file(self.param1)
-        self.assertTrue(self.param1['content'])
+        self.param1 = tika.parser.from_file(self.param1)  # type: ignore
+        self.assertTrue(self.param1["content"])
+
     def test_all(self):
         suite = test_suite()
         unittest.TextTestRunner(verbosity=2).run(suite)
 
+
 def test_suite():
     suite = unittest.TestSuite()
     t_urls = list(test_url())
-    t_urls.pop(0) #remove header
+    t_urls.pop(0)  # remove header
     for x in t_urls:
         try:
-            suite.addTest(CreateTest.parameterize(RemoteTest,param1=x))
+            suite.addTest(CreateTest.parameterize(RemoteTest, param1=x))
         except IOError as e:
-            print(e.strerror)    
-    return suite        
-
-def test_url():
-    with open('tika/tests/arguments/test_remote_content.csv', 'r') as csvfile:
-            urlread = csv.reader(csvfile)
-            for url in urlread:
-                yield url[1]
-                
+            print(e.strerror)
+    return suite
 
 
-if __name__ == '__main__':
+def test_url() -> Generator[str, Any, None]:
+    with open("tika/tests/arguments/test_remote_content.csv", "r") as csvfile:
+        urlread = csv.reader(csvfile)
+        for url in urlread:
+            yield url[1]
+
+
+if __name__ == "__main__":
     suite = test_suite()
     unittest.TextTestRunner(verbosity=2).run(suite)

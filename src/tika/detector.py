@@ -14,25 +14,51 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# 
+#
 
-from .tika import detectType1, callServer, ServerEndpoint
+from pathlib import Path
+from typing import Any, BinaryIO
 
-def from_file(filename, config_path=None, requestOptions={}):
-    '''
+from tika.tika import SERVER_ENDPOINT, call_server, detect_type_1
+
+
+def from_file(
+    file_obj: str | Path | BinaryIO,
+    config_path: str | None = None,
+    request_options: dict[str, Any] | None = None,
+) -> str | bytes | BinaryIO:
+    """
     Detects MIME type of specified file
     :param filename: file whose type needs to be detected
     :return: MIME type
-    '''
-    jsonOutput = detectType1('type', filename, config_path=config_path, requestOptions=requestOptions)
-    return jsonOutput[1]
+    """
+    _, response = detect_type_1(
+        option="type",
+        urlOrPath=file_obj,
+        config_path=config_path,
+        request_options=request_options,
+    )
+    return response
 
-def from_buffer(string, config_path=None, requestOptions={}):
-    '''
+
+def from_buffer(
+    buf: str | bytes | BinaryIO,
+    config_path: str | None = None,
+    request_options: dict[str, Any] | None = None,
+) -> str | bytes | BinaryIO:
+    """
     Detects MIME type of the buffered content
     :param string: buffered content whose type needs to be detected
     :return:
-    '''
-    status, response = callServer('put', ServerEndpoint, '/detect/stream', string,
-                                  {'Accept': 'text/plain'}, False, config_path=config_path, requestOptions=requestOptions)
+    """
+    _, response = call_server(
+        verb="put",
+        server_endpoint=SERVER_ENDPOINT,
+        service="/detect/stream",
+        data=buf,
+        headers={"Accept": "text/plain"},
+        verbose=False,
+        config_path=config_path,
+        request_options=request_options,
+    )
     return response

@@ -1,0 +1,32 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.8, pytest-8.3.4, pluggy-1.5.0
+benchmark: 5.1.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /home/nbaughman/Projects/tika-python
+configfile: pyproject.toml
+plugins: anyio-4.8.0, benchmark-5.1.0, cov-6.0.0
+collected 56 items / 12 deselected / 44 selected
+
+test/test_core.py ........                                               [ 18%]
+test/test_detector.py ..............                                     [ 50%]
+test/test_from_file_service.py ......                                    [ 63%]
+test/test_language.py .........                                          [ 84%]
+test/test_params.py ......                                               [ 97%]
+test/test_ssl_link.py .                                                  [100%]
+
+----- generated xml file: /home/nbaughman/Projects/tika-python/pytest.xml ------
+
+---------- coverage: platform linux, python 3.12.8-final-0 -----------
+Name                   Stmts   Miss  Cover   Missing
+----------------------------------------------------
+src/tika/config.py         8      8     0%   19-33
+src/tika/core.py         486    268    45%   138, 155-156, 164, 203-207, 238, 242, 246-248, 276-293, 304-314, 342-367, 391-392, 498-500, 531-533, 568-570, 597-627, 650-652, 684-686, 706, 730-744, 781, 784, 787, 805-806, 810, 823-824, 826, 830, 853, 855, 863-879, 890-901, 921-1004, 1019-1034, 1044, 1050-1055, 1070-1073, 1094, 1110, 1118-1128, 1148-1160, 1172-1218, 1232-1252
+src/tika/detector.py      14      2    86%   43, 68
+src/tika/language.py      14      2    86%   37, 60
+src/tika/parser.py        56      9    84%   61, 106, 118, 129, 163-168
+src/tika/unpack.py        82     69    16%   42-51, 67-84, 88-175, 180-181
+----------------------------------------------------
+TOTAL                    663    358    46%
+
+1 file skipped due to complete coverage.
+
+====================== 44 passed, 12 deselected in 37.79s ======================

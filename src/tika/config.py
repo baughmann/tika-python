@@ -16,16 +16,18 @@
 # limitations under the License.
 #
 
-from tika.tika import getConfig
+from typing import BinaryIO
+
+from tika.tika import get_config
 
 
-def getParsers():
-    return getConfig("parsers")[1]
+def getParsers() -> str | bytes | BinaryIO:
+    return get_config("parsers")[1]
 
 
-def getMimeTypes():
-    return getConfig("mime-types")[1]
+def getMimeTypes() -> str | bytes | BinaryIO:
+    return get_config("mime-types")[1]
 
 
-def getDetectors():
-    return getConfig("detectors")[1]
+def getDetectors() -> str | bytes | BinaryIO:
+    return get_config("detectors")[1]

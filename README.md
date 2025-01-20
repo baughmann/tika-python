@@ -136,7 +136,7 @@ The parser interface needs the following environment variable set on the console
 #!/usr/bin/env python
 import tika
 from tika import parser
-parsed = parser.from_file('/path/to/file', xmlContent=True)
+parsed = parser.from_file('/path/to/file', xml_content=True)
 print(parsed["metadata"])
 print(parsed["content"])
 
@@ -259,11 +259,11 @@ print parsed["metadata"]
 
 Customizing the Tika Server Request
 ---------------------------
-You may customize the outgoing HTTP request to Tika server by setting `requestOptions` on the `.from_file` and `.from_buffer` methods (Parser, Unpack , Detect, Config, Language, Translate). It should be a dictionary of arguments that will be passed to the request method. The [request method documentation](https://requests.kennethreitz.org/en/master/api/#requests.request) specifies valid arguments. This will override any defaults except for `url` and `params `/`data`.
+You may customize the outgoing HTTP request to Tika server by setting `request_options` on the `.from_file` and `.from_buffer` methods (Parser, Unpack , Detect, Config, Language, Translate). It should be a dictionary of arguments that will be passed to the request method. The [request method documentation](https://requests.kennethreitz.org/en/master/api/#requests.request) specifies valid arguments. This will override any defaults except for `url` and `params `/`data`.
 
 ```python
 from tika import parser
-parsed = parser.from_file('/path/to/file', requestOptions={'timeout': 120})
+parsed = parser.from_file('/path/to/file', request_options={'timeout': 120})
 ```
 
 New Command Line Client Tool
@@ -277,7 +277,7 @@ The options and help for the command line tool can be seen by typing
 the tika-server jar and start it if you haven't done so already.
 
 ```bash
-tika.py [-v] [-o <outputDir>] [--server <TikaServerEndpoint>] [--install <UrlToTikaServerJar>] [--port <portNumber>] <command> <option> <urlOrPathToFile>
+tika.py [-v] [-o <outputDir>] [--server <Tikaserver_endpoint>] [--install <UrlToTikaServerJar>] [--port <portNumber>] <command> <option> <urlOrPathToFile>
 
 tika.py parse all test.pdf test2.pdf                   (write output JSON metadata files for test1.pdf_meta.json and test2.pdf_meta.json)
 tika.py detect type test.pdf                           (returns mime-type as text/plain)
@@ -309,7 +309,7 @@ Switches:
   --verbose, -v                  = verbose mode
   --encode, -e           = encode response in UTF-8
   --csv, -c    = report detect output in comma-delimited format
-  --server <TikaServerEndpoint>  = use a remote Tika Server at this endpoint, otherwise use local server
+  --server <Tikaserver_endpoint>  = use a remote Tika Server at this endpoint, otherwise use local server
   --install <UrlToTikaServerJar> = download and exec Tika Server (JAR file), starting server on default port 9998
 
 Example usage as python client:

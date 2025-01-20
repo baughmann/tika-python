@@ -17,28 +17,6 @@
 import gzip
 
 
-def HTTPStatusOk():
-    try:
-        # python 2.7
-        import httplib  # type: ignore
-
-        return httplib.OK
-    except ImportError:
-        try:
-            # python > 3.4
-            from http import HTTPStatus
-
-            return HTTPStatus.OK
-        except ImportError:
-            # python 3.4
-            import http.client
-
-            return http.client.OK
-
-
-HTTPStatusOk = HTTPStatusOk()
-
-
 def gzip_compress(file_obj):
     try:
         # python > 3.4

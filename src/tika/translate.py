@@ -14,55 +14,107 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# 
+#
 
-from .tika import doTranslate1, callServer, Translator, ServerEndpoint
+from pathlib import Path
+from typing import Any, BinaryIO
 
-def from_file(filename, srcLang, destLang, serverEndpoint=ServerEndpoint, requestOptions={}):
-    '''
+from tika.tika import SERVER_ENDPOINT, TRANSLATOR, call_server, do_translate_1
+
+
+def from_file(
+    filename: Path,
+    srcLang: str,
+    destLang: str,
+    server_endpoint: str = SERVER_ENDPOINT,
+    request_options: dict[str, Any] | None = None,
+) -> str | bytes | BinaryIO:
+    """
     Traslates the content of source file to destination language
     :param filename: file whose contents needs translation
     :param srcLang: name of language of input file
     :param destLang: name of language of desired language
-    :param serverEndpoint: Tika server end point (Optional)
+    :param server_endpoint: Tika server end point (Optional)
     :return: translated content
-    '''
-    jsonOutput = doTranslate1(srcLang+':'+destLang, filename, serverEndpoint, requestOptions=requestOptions)
-    return jsonOutput[1]
+    """
+    _, response = do_translate_1(
+        option=srcLang + ":" + destLang,
+        urlOrPath=filename,
+        server_endpoint=server_endpoint,
+        request_options=request_options,
+    )
+    return response
 
-def from_buffer(string, srcLang, destLang, serverEndpoint=ServerEndpoint, requestOptions={}):
-    '''
+
+def from_buffer(
+    string: str | bytes | BinaryIO,
+    srcLang: str,
+    destLang: str,
+    server_endpoint: str = SERVER_ENDPOINT,
+    request_options: dict[str, Any] | None = None,
+) -> str | bytes | BinaryIO:
+    """
     Translates content from source language to desired destination language
     :param string: input content which needs translation
     :param srcLang: name of language of the input content
     :param destLang: name of the desired language for translation
-    :param serverEndpoint:
+    :param server_endpoint:
     :return:
-    '''
-    status, response = callServer('put', ServerEndpoint, '/translate/all/'+Translator+'/'+srcLang+'/'+destLang, 
-                                  string, {'Accept': 'text/plain'}, False, requestOptions=requestOptions)
+    """
+    _, response = call_server(
+        verb="put",
+        server_endpoint=server_endpoint,
+        service="/translate/all/" + TRANSLATOR + "/" + srcLang + "/" + destLang,
+        data=string,
+        headers={"Accept": "text/plain"},
+        verbose=False,
+        request_options=request_options,
+    )
     return response
 
-def auto_from_file(filename, destLang, serverEndpoint=ServerEndpoint, requestOptions={}):
-    '''
+
+def auto_from_file(
+    filename: Path,
+    destLang: str,
+    server_endpoint: str = SERVER_ENDPOINT,
+    request_options: dict[str, Any] | None = None,
+) -> str | bytes | BinaryIO:
+    """
     Translates contents of a file to desired language by auto detecting the source language
     :param filename: file whose contents needs translation
     :param destLang: name of the desired language for translation
-    :param serverEndpoint: Tika server end point (Optional)
+    :param server_endpoint: Tika server end point (Optional)
     :return:
-    '''
-    jsonOutput = doTranslate1(destLang, filename, serverEndpoint, requestOptions=requestOptions)
-    return jsonOutput[1]    
+    """
+    _, response = do_translate_1(
+        option=destLang,
+        urlOrPath=filename,
+        server_endpoint=server_endpoint,
+        request_options=request_options,
+    )
+    return response
 
-def auto_from_buffer(string, destLang, serverEndpoint=ServerEndpoint, requestOptions={}):
-    '''
+
+def auto_from_buffer(
+    string: str | bytes | BinaryIO,
+    destLang: str,
+    server_endpoint: str = SERVER_ENDPOINT,
+    request_options: dict[str, Any] | None = None,
+) -> str | bytes | BinaryIO:
+    """
     Translates content to desired language by auto detecting the source language
     :param string: input content which needs translation
     :param destLang: name of the desired language for translation
-    :param serverEndpoint: Tika server end point (Optional)
+    :param server_endpoint: Tika server end point (Optional)
     :return:
-    '''
-    status, response = callServer('put', ServerEndpoint, '/translate/all/'+Translator+'/'+destLang, 
-                                  string, {'Accept': 'text/plain'}, False, requestOptions=requestOptions)
+    """
+    _, response = call_server(
+        verb="put",
+        server_endpoint=server_endpoint,
+        service="/translate/all/" + TRANSLATOR + "/" + destLang,
+        data=string,
+        headers={"Accept": "text/plain"},
+        verbose=False,
+        request_options=request_options,
+    )
     return response
-

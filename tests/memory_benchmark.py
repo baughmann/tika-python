@@ -41,7 +41,7 @@ def test_parser_buffer():
     """Parse buffer"""
     file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
 
-    with open(file, "rb") as file_obj:
+    with open(file, "r") as file_obj:
         response = tika.parser.from_buffer(file_obj.read(), headers={"Accept-Encoding": "gzip, deflate"})
 
 

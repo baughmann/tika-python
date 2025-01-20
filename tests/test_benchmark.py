@@ -20,97 +20,99 @@
 import os
 import unittest
 import zlib
+from http import HTTPStatus
+from typing import Any
 
 import tika.parser
 import tika.tika
-from tests.utils import HTTPStatusOk, gzip_compress
+from tests.utils import gzip_compress
 
 
-def test_local_binary(benchmark):
-    """parse file binary"""
-    file = os.path.join(os.path.dirname(__file__), 'files', 'rwservlet.pdf')
+def test_local_binary(benchmark) -> None:
+    """Parse file binary"""
+    file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
     response = benchmark(tika_from_binary, file)
 
-    assert response['status'] == HTTPStatusOk
+    assert response["status"] == HTTPStatus.OK
 
 
-def test_parser_buffer(benchmark):
-    """example how to send gzip file"""
-    file = os.path.join(os.path.dirname(__file__), 'files', 'rwservlet.pdf')
+def test_parser_buffer(benchmark) -> None:
+    """Example how to send gzip file"""
+    file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
     response = benchmark(tika_from_buffer, file)
 
-    assert response['status'] == HTTPStatusOk
+    assert response["status"] == HTTPStatus.OK
 
 
-def test_parser_buffer_zlib_input(benchmark):
-    """example how to send gzip file"""
-    file = os.path.join(os.path.dirname(__file__), 'files', 'rwservlet.pdf')
+def test_parser_buffer_zlib_input(benchmark) -> None:
+    """Example how to send gzip file"""
+    file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
 
     response = benchmark(tika_from_buffer_zlib, file)
 
-    assert response['status'] == HTTPStatusOk
+    assert response["status"] == HTTPStatus.OK
 
 
-def test_parser_buffer_gzip_input(benchmark):
-    """parse file binary"""
-    file = os.path.join(os.path.dirname(__file__), 'files', 'rwservlet.pdf')
+def test_parser_buffer_gzip_input(benchmark) -> None:
+    """Parse file binary"""
+    file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
     response = benchmark(tika_from_buffer_gzip, file)
 
-    assert response['status'] == HTTPStatusOk
+    assert response["status"] == HTTPStatus.OK
 
 
-def test_local_binary_with_gzip_output(benchmark):
-    """parse file binary"""
-    file = os.path.join(os.path.dirname(__file__), 'files', 'rwservlet.pdf')
-    response = benchmark(tika_from_binary, file, headers={'Accept-Encoding': 'gzip, deflate'})
+def test_local_binary_with_gzip_output(benchmark) -> None:
+    """Parse file binary"""
+    file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
+    response = benchmark(tika_from_binary, file, headers={"Accept-Encoding": "gzip, deflate"})
 
-    assert response['status'] == HTTPStatusOk
-
-
-def test_parser_buffer_with_gzip_output(benchmark):
-    """example how to send gzip file"""
-    file = os.path.join(os.path.dirname(__file__), 'files', 'rwservlet.pdf')
-    response = benchmark(tika_from_buffer, file, headers={'Accept-Encoding': 'gzip, deflate'})
-
-    assert response['status'] == HTTPStatusOk
+    assert response["status"] == HTTPStatus.OK
 
 
-def test_parser_buffer_zlib_input_and_gzip_output(benchmark):
-    """example how to send gzip file"""
-    file = os.path.join(os.path.dirname(__file__), 'files', 'rwservlet.pdf')
+def test_parser_buffer_with_gzip_output(benchmark) -> None:
+    """Example how to send gzip file"""
+    file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
+    response = benchmark(tika_from_buffer, file, headers={"Accept-Encoding": "gzip, deflate"})
 
-    response = benchmark(tika_from_buffer_zlib, file, headers={'Accept-Encoding': 'gzip, deflate'})
-
-    assert response['status'] == HTTPStatusOk
-
-
-def test_parser_buffer_gzip_input_and_gzip_output(benchmark):
-    """parse file binary"""
-    file = os.path.join(os.path.dirname(__file__), 'files', 'rwservlet.pdf')
-    response = benchmark(tika_from_buffer_gzip, file, headers={'Accept-Encoding': 'gzip, deflate'})
-
-    assert response['status'] == HTTPStatusOk
+    assert response["status"] == HTTPStatus.OK
 
 
-def tika_from_buffer_zlib(file, headers=None):
-    with open(file, 'rb') as file_obj:
+def test_parser_buffer_zlib_input_and_gzip_output(benchmark) -> None:
+    """Example how to send gzip file"""
+    file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
+
+    response = benchmark(tika_from_buffer_zlib, file, headers={"Accept-Encoding": "gzip, deflate"})
+
+    assert response["status"] == HTTPStatus.OK
+
+
+def test_parser_buffer_gzip_input_and_gzip_output(benchmark) -> None:
+    """Parse file binary"""
+    file = os.path.join(os.path.dirname(__file__), "files", "rwservlet.pdf")
+    response = benchmark(tika_from_buffer_gzip, file, headers={"Accept-Encoding": "gzip, deflate"})
+
+    assert response["status"] == HTTPStatus.OK
+
+
+def tika_from_buffer_zlib(file, headers=None) -> dict[str, Any]:
+    with open(file, mode="rb") as file_obj:
         return tika.parser.from_buffer(zlib.compress(file_obj.read()), headers=headers)
 
 
-def tika_from_buffer_gzip(file, headers=None):
-    with open(file, 'rb') as file_obj:
-        return tika.parser.from_buffer(gzip_compress(file_obj.read()), headers=headers)
+def tika_from_buffer_gzip(file, headers=None) -> dict[str, Any]:
+    with open(file, mode="rb") as file_obj:
+        return tika.parser.from_buffer(string=gzip_compress(file_obj.read()), headers=headers)
 
 
-def tika_from_buffer(file, headers=None):
-    with open(file, 'rb') as file_obj:
-        return tika.parser.from_buffer(file_obj.read(), headers=headers)
+def tika_from_buffer(file, headers=None) -> dict[str, Any]:
+    with open(file, mode="r") as file_obj:
+        return tika.parser.from_buffer(string=file_obj.read(), headers=headers)
 
 
-def tika_from_binary(file, headers=None):
-    with open(file, 'rb') as file_obj:
-        return tika.parser.from_file(file_obj, headers=headers)
+def tika_from_binary(file, headers=None) -> dict[str, Any]:
+    with open(file, mode="rb") as file_obj:
+        return tika.parser.from_file(filename=file_obj, headers=headers)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

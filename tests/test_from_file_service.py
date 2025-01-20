@@ -37,12 +37,17 @@ class CreateTest(unittest.TestCase):
         self.assertIn("AUTORIDADES Y PERSONAL", result["content"])
 
     @mock.patch("tika.parser._parse")
-    @mock.patch("tika.parser.parse1")
+    @mock.patch("tika.parser.parse_1")
     def test_remote_endpoint(self, tika_call_mock, _):
         result = tika.parser.from_file("filename", "http://tika:9998/tika")
 
         tika_call_mock.assert_called_with(
-            "all", "filename", "http://tika:9998/tika", headers=None, config_path=None, requestOptions={}
+            option="all",
+            urlOrPath="filename",
+            server_endpoint="http://tika:9998/tika",
+            headers=None,
+            config_path=None,
+            request_options=None,
         )
 
     def test_default_service_explicit(self):

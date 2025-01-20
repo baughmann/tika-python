@@ -18,7 +18,7 @@
 
 from typing import BinaryIO
 
-from tika.tika import get_config
+from tika.core import get_config
 
 
 def getParsers() -> str | bytes | BinaryIO:

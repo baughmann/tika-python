@@ -16,10 +16,11 @@
 # limitations under the License.
 #
 
+from http import HTTPStatus
 from pathlib import Path
 from typing import Any, BinaryIO
 
-from tika.tika import SERVER_ENDPOINT, call_server, detect_type_1
+from tika.core import SERVER_ENDPOINT, TikaException, call_server, detect_type_1
 
 
 def from_file(
@@ -32,12 +33,14 @@ def from_file(
     :param filename: file whose type needs to be detected
     :return: MIME type
     """
-    _, response = detect_type_1(
+    status, response = detect_type_1(
         option="type",
         urlOrPath=file_obj,
         config_path=config_path,
         request_options=request_options,
     )
+    if status != HTTPStatus.OK:
+        raise TikaException(f"Unexpected response from Tika server ({status}): {response}")
     return response
 
 
@@ -51,7 +54,7 @@ def from_buffer(
     :param string: buffered content whose type needs to be detected
     :return:
     """
-    _, response = call_server(
+    status, response = call_server(
         verb="put",
         server_endpoint=SERVER_ENDPOINT,
         service="/detect/stream",
@@ -61,4 +64,7 @@ def from_buffer(
         config_path=config_path,
         request_options=request_options,
     )
+    if status != HTTPStatus.OK:
+        raise TikaException(f"Unexpected response from Tika server ({status}): {response}")
+
     return response

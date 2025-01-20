@@ -20,11 +20,16 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
-include = ["src/tika/**/*.jar"]
+include = ["src/**/*.jar"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["test"]
+markers = ["benchmark: mark a test as a benchmark"]
+
+[project.scripts]
+test = "pytest -v -m 'not benchmark'"
+benchmark = "pytest -v -m benchmark"
 
 [dependency-groups]
 dev = [

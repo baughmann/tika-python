@@ -16,10 +16,11 @@
 # limitations under the License.
 #
 
+from http import HTTPStatus
 from pathlib import Path
 from typing import Any, BinaryIO
 
-from tika.tika import SERVER_ENDPOINT, call_server, detect_lang_1
+from tika.core import SERVER_ENDPOINT, TikaException, call_server, detect_lang_1
 
 
 def from_file(
@@ -31,8 +32,10 @@ def from_file(
     :param filename: path to file whose language needs to be detected
     :return:
     """
-    _, content = detect_lang_1(option="file", urlOrPath=obj, request_options=request_options)
-    return content
+    status, response = detect_lang_1(option="file", urlOrPath=obj, request_options=request_options)
+    if status != HTTPStatus.OK:
+        raise TikaException(f"Unexpected response from Tika server ({status}): {response}")
+    return response
 
 
 def from_buffer(
@@ -44,7 +47,7 @@ def from_buffer(
     :param string: buffered data
     :return:
     """
-    _, response = call_server(
+    status, response = call_server(
         verb="put",
         server_endpoint=SERVER_ENDPOINT,
         service="/language/string",
@@ -53,4 +56,6 @@ def from_buffer(
         verbose=False,
         request_options=request_options,
     )
+    if status != HTTPStatus.OK:
+        raise TikaException(f"Unexpected response from Tika server ({status}): {response}")
     return response

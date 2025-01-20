@@ -19,19 +19,20 @@
 import csv
 import tarfile
 from contextlib import closing
+from http import HTTPStatus
 from io import BytesIO, TextIOWrapper
 from pathlib import Path
 from sys import version_info
 from typing import Any, BinaryIO, Generator
 
-from tika.tika import SERVER_ENDPOINT, TikaException, call_server, parse_1
+from tika.core import SERVER_ENDPOINT, TikaException, TikaResponse, call_server, parse_1
 
 
 def from_file(
     filename: Path,
     server_endpoint: str = SERVER_ENDPOINT,
     request_options: dict[str, Any] | None = None,
-) -> dict[str, Any]:
+) -> TikaResponse:
     """
     Parse from file
     :param filename: file
@@ -39,9 +40,9 @@ def from_file(
     :return:
     """
     tarOutput = parse_1(
-        "unpack",
-        filename,
-        server_endpoint,
+        option="unpack",
+        urlOrPath=filename,
+        server_endpoint=server_endpoint,
         responseMimeType="application/x-tar",
         services={"meta": "/meta", "text": "/tika", "all": "/rmeta/xml", "unpack": "/unpack/all"},
         rawResponse=True,
@@ -55,7 +56,7 @@ def from_buffer(
     server_endpoint: str = SERVER_ENDPOINT,
     headers: dict[str, Any] | None = None,
     request_options: dict[str, Any] | None = None,
-) -> dict[str, Any]:
+) -> TikaResponse:
     """
     Parse from buffered content
     :param string:  buffered content
@@ -77,11 +78,19 @@ def from_buffer(
         request_options=request_options,
     )
 
+    if status != HTTPStatus.OK:
+        raise TikaException(f"Unexpected response from Tika server ({status}): {response}")
+
     return _parse(tarOutput=(status, response))
 
 
-def _parse(tarOutput) -> dict[str, Any]:
-    parsed: dict[str, Any] = {}
+def _parse(tarOutput) -> TikaResponse:
+    parsed = TikaResponse(
+        status=200,
+        metadata=None,
+        content=None,
+        attachments=None,
+    )
     if not tarOutput:
         return parsed
     elif tarOutput[1] is None or tarOutput[1] == b"":
@@ -149,7 +158,7 @@ def _parse(tarOutput) -> dict[str, Any]:
                         content = content_file.read().decode("utf8")
 
         # get the remaining files as attachments
-        attachments = {}
+        attachments: dict[str, Any] = {}
         for attachment in memberNames:
             attachmentMember = tarFile.getmember(attachment)
             if not attachmentMember.issym() and attachmentMember.isfile():

@@ -19,11 +19,12 @@ import zlib
 from http import HTTPStatus
 from pathlib import Path
 
+import pytest
 from pytest_benchmark.fixture import BenchmarkFixture
 
-import tika.parser
+import tika
 from test.utils import gzip_compress
-from tika.tika import TikaResponse
+from tika import TikaResponse
 
 # Type aliases
 Headers = dict[str, str] | None
@@ -34,72 +35,84 @@ TEST_PDF_PATH = TEST_FILES_DIR / "rwservlet.pdf"
 GZIP_HEADERS = {"Accept-Encoding": "gzip, deflate"}
 
 
+@pytest.mark.benchmark
 def tika_from_buffer_zlib(file: Path | str, headers: Headers = None) -> TikaResponse:
     """Process file with zlib compression."""
     with open(file, mode="rb") as file_obj:
         return tika.parser.from_buffer(zlib.compress(file_obj.read()), headers=headers)
 
 
+@pytest.mark.benchmark
 def tika_from_buffer_gzip(file: Path | str, headers: Headers = None) -> TikaResponse:
     """Process file with gzip compression."""
     with open(file, mode="rb") as file_obj:
         return tika.parser.from_buffer(buf=gzip_compress(file_obj.read()), headers=headers)
 
 
+@pytest.mark.benchmark
 def tika_from_buffer(file: Path | str, headers: Headers = None) -> TikaResponse:
     """Process file from buffer."""
     with open(file, mode="r") as file_obj:
         return tika.parser.from_buffer(buf=file_obj.read(), headers=headers)
 
 
+@pytest.mark.benchmark
 def tika_from_binary(file: Path | str, headers: Headers = None) -> TikaResponse:
     """Process file from binary."""
     with open(file, mode="rb") as file_obj:
         return tika.parser.from_file(obj=file_obj, headers=headers)
 
 
+@pytest.mark.benchmark
 def test_local_binary(benchmark: BenchmarkFixture) -> None:
     """Benchmark parsing file binary."""
     response = benchmark(tika_from_binary, TEST_PDF_PATH)
     assert response["status"] == HTTPStatus.OK
 
 
+@pytest.mark.benchmark
 def test_parser_buffer(benchmark: BenchmarkFixture) -> None:
     """Benchmark parsing from buffer."""
     response = benchmark(tika_from_buffer, TEST_PDF_PATH)
     assert response["status"] == HTTPStatus.OK
 
 
+@pytest.mark.benchmark
 def test_parser_buffer_zlib_input(benchmark: BenchmarkFixture) -> None:
     """Benchmark parsing with zlib compression."""
     response = benchmark(tika_from_buffer_zlib, TEST_PDF_PATH)
     assert response["status"] == HTTPStatus.OK
 
 
+@pytest.mark.benchmark
 def test_parser_buffer_gzip_input(benchmark: BenchmarkFixture) -> None:
     """Benchmark parsing with gzip compression."""
     response = benchmark(tika_from_buffer_gzip, TEST_PDF_PATH)
     assert response["status"] == HTTPStatus.OK
 
 
+@pytest.mark.benchmark
 def test_local_binary_with_gzip_output(benchmark: BenchmarkFixture) -> None:
     """Benchmark parsing binary with gzip output."""
     response = benchmark(tika_from_binary, TEST_PDF_PATH, headers=GZIP_HEADERS)
     assert response["status"] == HTTPStatus.OK
 
 
+@pytest.mark.benchmark
 def test_parser_buffer_with_gzip_output(benchmark: BenchmarkFixture) -> None:
     """Benchmark parsing from buffer with gzip output."""
     response = benchmark(tika_from_buffer, TEST_PDF_PATH, headers=GZIP_HEADERS)
     assert response["status"] == HTTPStatus.OK
 
 
+@pytest.mark.benchmark
 def test_parser_buffer_zlib_input_and_gzip_output(benchmark: BenchmarkFixture) -> None:
     """Benchmark parsing with zlib compression and gzip output."""
     response = benchmark(tika_from_buffer_zlib, TEST_PDF_PATH, headers=GZIP_HEADERS)
     assert response["status"] == HTTPStatus.OK
 
 
+@pytest.mark.benchmark
 def test_parser_buffer_gzip_input_and_gzip_output(benchmark: BenchmarkFixture) -> None:
     """Benchmark parsing with gzip compression and output."""
     response = benchmark(tika_from_buffer_gzip, TEST_PDF_PATH, headers=GZIP_HEADERS)

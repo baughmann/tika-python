@@ -19,8 +19,8 @@ from unittest.mock import patch
 
 import pytest
 
-import tika.parser
-from tika.tika import TikaResponse
+import tika
+from tika import TikaResponse
 
 # Test data constants
 TEST_PDF_URL = "https://boe.es/boe/dias/2019/12/02/pdfs/BOE-A-2019-17288.pdf"

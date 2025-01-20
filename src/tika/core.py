@@ -130,6 +130,7 @@ class TikaResponse(TypedDict):
     status: int
     metadata: dict[str, str | list[str]] | None
     content: str | bytes | BinaryIO | None
+    attachments: dict[str, Any] | None
 
 
 try:
@@ -170,6 +171,7 @@ logFormatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelnam
 log: logging.Logger = logging.getLogger("tika.tika")
 
 if os.getenv("TIKA_LOG_FILE", "tika.log"):
+    print("Logging to %s" % LOG_FILE)
     # File logs
     fileHandler = logging.FileHandler(LOG_FILE)
     fileHandler.setFormatter(logFormatter)
@@ -181,7 +183,7 @@ if os.getenv("TIKA_LOG_FILE", "tika.log"):
     log.addHandler(consoleHandler)
 
 # Log level
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 
 IS_WINDOWS = True if platform.system() == "Windows" else False
 TIKA_VERSION = os.getenv("TIKA_VERSION", "3.0.0")
@@ -206,7 +208,8 @@ def get_bundled_jar_path() -> Path:
 
 
 # Replace the existing TikaServerJar definition
-TikaServerJar = Path(os.getenv("TIKA_SERVER_JAR", get_bundled_jar_path()))
+TIKA_SERVER_JAR = Path(os.getenv("TIKA_SERVER_JAR", get_bundled_jar_path()))
+TIKA_JAR_HASH_ALGO: str = os.getenv("TIKA_JAR_HASH_ALGO", "md5")
 
 SERVER_HOST = "localhost"
 PORT = "9998"
@@ -252,7 +255,7 @@ def run_command(
     port: str,
     outDir: Path | None = None,
     serverHost: str = SERVER_HOST,
-    tikaServerJar: Path = TikaServerJar,
+    tikaServerJar: Path = TIKA_SERVER_JAR,
     verbose: int = VERBOSE,
     encode: int = ENCODE_UTF8,
 ) -> list[Path] | list[tuple[int, str | bytes | BinaryIO]] | str | bytes | BinaryIO:
@@ -317,7 +320,7 @@ def parse_and_save(
     outDir=None,
     server_endpoint=SERVER_ENDPOINT,
     verbose=VERBOSE,
-    tikaServerJar=TikaServerJar,
+    tikaServerJar=TIKA_SERVER_JAR,
     responseMimeType="application/json",
     metaExtension="_meta.json",
     services={"meta": "/meta", "text": "/tika", "all": "/rmeta"},
@@ -369,7 +372,7 @@ def parse(
     urlOrPaths,
     server_endpoint: str = SERVER_ENDPOINT,
     verbose: int = VERBOSE,
-    tikaServerJar: Path = TikaServerJar,
+    tikaServerJar: Path = TIKA_SERVER_JAR,
     responseMimeType: str = "application/json",
     services: dict[str, str] | None = None,
     rawResponse: bool = False,
@@ -406,7 +409,7 @@ def parse_1(
     urlOrPath,
     server_endpoint=SERVER_ENDPOINT,
     verbose: int = VERBOSE,
-    tikaServerJar=TikaServerJar,
+    tikaServerJar=TIKA_SERVER_JAR,
     responseMimeType="application/json",
     services={"meta": "/meta", "text": "/tika", "all": "/rmeta/text"},
     rawResponse: bool = False,
@@ -477,7 +480,7 @@ def detect_lang(
     urlOrPaths,
     server_endpoint: str = SERVER_ENDPOINT,
     verbose: int = VERBOSE,
-    tikaServerJar=TikaServerJar,
+    tikaServerJar=TIKA_SERVER_JAR,
     responseMimeType: str = "text/plain",
     services: dict[str, str] | None = None,
 ) -> list[tuple[int, str | bytes | BinaryIO]]:
@@ -502,10 +505,10 @@ def detect_lang(
 
 def detect_lang_1(
     option: str,
-    urlOrPath,
+    urlOrPath: str | Path | BinaryIO,
     server_endpoint: str = SERVER_ENDPOINT,
     verbose: int = VERBOSE,
-    tikaServerJar=TikaServerJar,
+    tikaServerJar=TIKA_SERVER_JAR,
     responseMimeType: str = "text/plain",
     services: dict[str, str] | None = None,
     request_options: dict[str, Any] | None = None,
@@ -547,7 +550,7 @@ def do_translate(
     urlOrPaths,
     server_endpoint: str = SERVER_ENDPOINT,
     verbose: int = VERBOSE,
-    tikaServerJar=TikaServerJar,
+    tikaServerJar=TIKA_SERVER_JAR,
     responseMimeType: str = "text/plain",
     services: dict[str, str] | None = None,
 ) -> list[tuple[int, str | bytes | BinaryIO]]:
@@ -575,7 +578,7 @@ def do_translate_1(
     urlOrPath,
     server_endpoint: str = SERVER_ENDPOINT,
     verbose: int = VERBOSE,
-    tikaServerJar=TikaServerJar,
+    tikaServerJar=TIKA_SERVER_JAR,
     responseMimeType: str = "text/plain",
     services: dict[str, str] | None = None,
     request_options: dict[str, Any] | None = None,
@@ -629,7 +632,7 @@ def detect_type(
     urlOrPaths,
     server_endpoint: str = SERVER_ENDPOINT,
     verbose: int = VERBOSE,
-    tikaServerJar=TikaServerJar,
+    tikaServerJar=TIKA_SERVER_JAR,
     responseMimeType: str = "text/plain",
     services: dict[str, str] | None = None,
 ) -> list[tuple[int, str | bytes | BinaryIO]]:
@@ -657,7 +660,7 @@ def detect_type_1(
     urlOrPath,
     server_endpoint: str = SERVER_ENDPOINT,
     verbose: int = VERBOSE,
-    tikaServerJar: Path = TikaServerJar,
+    tikaServerJar: Path = TIKA_SERVER_JAR,
     responseMimeType: str = "text/plain",
     services: dict[str, Any] | None = None,
     config_path: str | None = None,
@@ -709,7 +712,7 @@ def get_config(
     option: str,
     server_endpoint: str = SERVER_ENDPOINT,
     verbose: int = VERBOSE,
-    tikaServerJar=TikaServerJar,
+    tikaServerJar=TIKA_SERVER_JAR,
     responseMimeType="application/json",
     services={"mime-types": "/mime-types", "detectors": "/detectors", "parsers": "/parsers/details"},
     request_options: dict[str, Any] | None = None,
@@ -748,7 +751,7 @@ def call_server(
     data: str | bytes | BinaryIO | None,
     headers: dict[str, Any],
     verbose: int = VERBOSE,
-    tikaServerJar: Path = TikaServerJar,
+    tikaServerJar: Path = TIKA_SERVER_JAR,
     httpVerbs={"get": requests.get, "put": requests.put, "post": requests.post},
     classpath=None,
     rawResponse: bool = False,
@@ -833,7 +836,7 @@ def check_tika_server(
     scheme: Literal["http", "https"] = "http",
     serverHost: str = SERVER_HOST,
     port: str = PORT,
-    tikaServerJar=TikaServerJar,
+    tikaServerJar=TIKA_SERVER_JAR,
     classpath: str | None = None,
     config_path=None,
 ) -> str:
@@ -884,13 +887,16 @@ def check_jar_signature(tikaServerJar, jarPath) -> bool:
     :param jarPath:
     :return: ``True`` if the signature of the jar matches
     """
-    if not os.path.isfile(jarPath + ".md5"):
-        raise RuntimeError(f"MD5 file not found for JAR {tikaServerJar} at path {jarPath}")
-    m = hashlib.md5()
+    localChecksumPath = Path(".".join([jarPath, TIKA_JAR_HASH_ALGO]))
+    if not localChecksumPath.exists():
+        raise RuntimeError(f"Checksum file not found for JAR {tikaServerJar} at path {jarPath}")
+
+    m = hashlib.new(TIKA_JAR_HASH_ALGO)
+
     with open(jarPath, "rb") as f:
         binContents = f.read()
         m.update(binContents)
-        with open(jarPath + ".md5", "r") as em:
+        with open(localChecksumPath, "r") as em:
             existingContents = em.read()
             return existingContents == m.hexdigest()
 
@@ -952,6 +958,7 @@ def start_server(
     try:
         tika_log_file_path = os.path.join(TIKA_SERVER_LOG_FILE_PATH, "tika-server.log")
         logFile = open(tika_log_file_path, "w")
+        print("Logging to %s" % tika_log_file_path)
     except PermissionError:
         log.error("Unable to create tika-server.log at %s due to permission error." % (TIKA_SERVER_LOG_FILE_PATH))
         return False
@@ -1082,10 +1089,7 @@ def get_remote_file(
         'local', 'remote', or 'binary'
     """
     # handle binary stream input
-    if isinstance(urlOrPath, Path):
-        return (urlOrPath, "local")
-
-    if isinstance(urlOrPath, io.IOBase | BinaryIO):
+    if not isinstance(urlOrPath, (Path, str)):
         if not hasattr(urlOrPath, "name"):
             name = "file_{}".format(int(time.time()))
         else:
@@ -1095,6 +1099,9 @@ def get_remote_file(
         with open(dest_path, "wb") as f:
             f.write(urlOrPath.read())
         return (dest_path, "binary")
+
+    if isinstance(urlOrPath, Path):
+        return (urlOrPath, "local")
 
     urlp = urlparse(urlOrPath)
     if urlp.scheme == "":
@@ -1177,7 +1184,7 @@ def main(argv=None):
         log.exception("%s error: Bad option: %s, %s" % (argv[0], bad_opt, msg))
         raise TikaException("%s error: Bad option: %s, %s" % (argv[0], bad_opt, msg))
 
-    tikaServerJar = TikaServerJar
+    tikaServerJar = TIKA_SERVER_JAR
     serverHost = SERVER_HOST
     outDir = Path(".")
     port = PORT

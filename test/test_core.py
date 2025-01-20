@@ -20,8 +20,7 @@ from typing import BinaryIO, Generator
 
 import pytest
 
-import tika.parser
-import tika.tika
+import tika
 
 # Constants
 TEST_FILES_DIR = Path(__file__).parent / "files"
@@ -80,5 +79,5 @@ def test_local_path() -> None:
 def test_kill_server(pdf_file: BinaryIO) -> None:
     """Test parsing a file and then killing the server."""
     tika.parser.from_file(pdf_file)
-    result = tika.tika.kill_server()
+    result = tika.kill_server()
     assert result is None

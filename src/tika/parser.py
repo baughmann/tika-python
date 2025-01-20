@@ -15,12 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+from http import HTTPStatus
 from pathlib import Path
 from typing import Any, BinaryIO, cast
 
 import orjson
 
-from tika.tika import SERVER_ENDPOINT, TikaResponse, call_server, parse_1
+from tika.core import SERVER_ENDPOINT, TikaException, TikaResponse, call_server, parse_1
 
 
 def from_file(
@@ -113,13 +114,16 @@ def from_buffer(
             request_options=request_options,
         )
 
+    if status != HTTPStatus.OK:
+        raise TikaException(f"Unexpected response from Tika server ({status}): {response}")
+
     return _parse((status, response))
 
 
 def _parse(output: tuple[int, str | bytes | BinaryIO | None], service: str = "all") -> TikaResponse:
     """Parse response from Tika REST API server."""
     status, raw_content = output
-    parsed = TikaResponse(metadata=None, content=None, status=status)
+    parsed = TikaResponse(metadata=None, content=None, status=status, attachments=None)
 
     if not raw_content:
         return parsed

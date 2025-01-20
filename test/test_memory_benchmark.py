@@ -18,9 +18,10 @@
 import zlib
 from pathlib import Path
 
+import pytest
 from memory_profiler import profile
 
-import tika.parser
+import tika
 from test.utils import gzip_compress
 
 # Constants
@@ -69,6 +70,7 @@ def test_parser_gzip() -> None:
         assert response["content"] is not None
 
 
+@pytest.mark.benchmark
 def main() -> None:
     """Run all memory profiling tests."""
     test_parser_buffer()

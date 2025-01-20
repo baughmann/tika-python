@@ -35,23 +35,19 @@ def from_file(
 ) -> TikaResponse:
     """Parse a file for metadata and content.
 
-    Args:
-        obj: Path to file which needs to be parsed or binary file using open(path,'rb')
-        server_endpoint: Server endpoint url.
-        service: Service requested from the tika server.
-            'all' (default) returns recursive text content + metadata.
-            'meta' returns only metadata.
-            'text' returns only content.
-        xml_content: Whether XML content should be requested.
-            Defaults to False which results in text content.
-        headers: Optional request headers to be sent to the tika reset server.
-        config_path: Optional path to configuration file.
-        request_options: Optional additional request options.
+    :param obj: Path to file or binary file object (opened with 'rb')
+    :param server_endpoint: Server endpoint URL
+    :param service: Service requested from the tika server:
+        - 'all' (default): Returns recursive text content + metadata
+        - 'meta': Returns only metadata
+        - 'text': Returns only content
+    :param xml_content: Whether to request XML content (False returns text)
+    :param headers: Optional request headers for tika server
+    :param config_path: Optional path to configuration file
+    :param request_options: Optional additional request options
 
-    Returns:
-        TikaResponse: Contains metadata and content keys.
-            content: String value of parsed content.
-            metadata: Dictionary of metadata values.
+    :return: TikaResponse containing metadata and content
+    :rtype: TikaResponse
     """
     if not xml_content:
         output = parse_1(

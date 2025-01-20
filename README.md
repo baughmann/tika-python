@@ -3,6 +3,10 @@
 
 tika-python
 ===========
+
+<!-- Pytest Coverage Comment:Begin -->
+<!-- Pytest Coverage Comment:End -->
+
 A Python port of the [Apache Tika](http://tika.apache.org/)
 library that makes Tika available using the
 [Tika REST Server](https://cwiki.apache.org/confluence/display/TIKA/TikaServer).

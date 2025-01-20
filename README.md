@@ -5,6 +5,19 @@ tika-python
 ![Coverage](https://raw.githubusercontent.com/baughmann/tika-python/refs/heads/master/reports/images/coverage.svg)
 [Safety Report](https://raw.githubusercontent.com/baughmann/tika-python/refs/heads/master/reports/safety_scan.html)
 
+
+
+
+```shell
+(tika-python) ➜  tika-python git:(jpype) ✗ uv run python -m stubgenj \
+    --classpath "/home/nbaughman/Projects/tika-python/src/tika/jars/tika-app-3.0.0.jar" \
+    --convert-strings \
+    
+    org.apache.tika
+```
+
+
+
 A Python port of the [Apache Tika](http://tika.apache.org/)
 library that makes Tika available using the
 [Tika REST Server](https://cwiki.apache.org/confluence/display/TIKA/TikaServer).

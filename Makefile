@@ -18,6 +18,11 @@ generate_badges:
 
 check: test benchmark safety_scan generate_badges run-ruff
 
+generate_stubs:
+	@uv run python -m stubgenj --classpath "src/tika/jars/tika-app-3.0.0.jar" --convert-strings org.apache.tika java org.apache.commons org.w3c.dom org.xml.sax --output-dir stubs --no-stubs-suffix
+# no idea why it generates stubs for jpype, but we have to remove them
+	@rm -rf stubs/jpype-stubs
+
 
 
 .PHONY: test benchmark

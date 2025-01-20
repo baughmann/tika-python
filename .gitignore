@@ -20,3 +20,4 @@ dist/
 wheels/
 *.egg-info
 .benchmarks
+stubs

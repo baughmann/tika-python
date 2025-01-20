@@ -181,14 +181,26 @@ TikaVersion = os.getenv("TIKA_VERSION", "3.0.0")
 TikaJarPath = os.getenv("TIKA_PATH", tempfile.gettempdir())
 TikaFilesPath = tempfile.gettempdir()
 TikaServerLogFilePath = log_path
-TikaServerJar = os.getenv(
-    "TIKA_SERVER_JAR",
-    "http://search.maven.org/remotecontent?filepath=org/apache/tika/tika-server-standard/"
-    + TikaVersion
-    + "/tika-server-standard-"
-    + TikaVersion
-    + ".jar",
-)
+
+
+def get_bundled_jar_path():
+    """Get path to bundled Tika server JAR file"""
+    # python 3.9+
+    try:
+        from importlib.resources import files
+
+        return str(files("tika").joinpath("jars/tika-server-standard-3.0.0.jar"))
+    # python 3.7-3.8
+    except ImportError:
+        from importlib.resources import path
+
+        with path("tika", "jars/tika-server-standard-3.0.0.jar") as jar_path:
+            return str(jar_path)
+
+
+# Replace the existing TikaServerJar definition
+TikaServerJar = os.getenv("TIKA_SERVER_JAR", get_bundled_jar_path())
+
 ServerHost = "localhost"
 Port = "9998"
 ServerEndpoint = os.getenv("TIKA_SERVER_ENDPOINT", "http://" + ServerHost + ":" + Port)
